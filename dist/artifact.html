@@ -1,0 +1,2012 @@
+<title>作文マスター・クエスト</title>
+<style>
+/* =========================================================
+   作文マスター・クエスト  style.css
+   - 小学2年生向け / iPad Safari で使いやすいこと を優先
+   - 色や大きさは :root の変数でまとめて変えられる
+   ========================================================= */
+
+:root{
+  /* せかいの色 */
+  --bg-1:#101a35;
+  --bg-2:#1d2b57;
+  --panel:#fff8ea;         /* 羊皮紙（ようひし）色 */
+  --panel-line:#c9ad7c;
+  --ink:#3b2f22;           /* 文字色 */
+  --ink-soft:#7a6a55;
+  --gold:#ffcc44;
+  --ok:#2fae63;
+  --ok-soft:#d9f5e3;
+  --ng:#ff9350;            /* こわくない オレンジ */
+  --ng-soft:#ffeadd;
+  --white:#ffffff;
+
+  /* ワールドの色（JSで --w にセットする） */
+  --w:#3fa96a;
+
+  /* 大きさ */
+  --radius:18px;
+  --tap:56px;              /* タップしやすい 最小の大きさ */
+  --topbar-h:52px;
+  --cell:30px;             /* げんこう用紙の1マス（JSで計算しなおす） */
+
+  --font: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN W4", "UD デジタル 教科書体 NK-R",
+          "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+}
+
+*{ box-sizing:border-box; }
+/* hidden ぞくせいを かならず ゆうせんする（display を うわがき されないように） */
+[hidden]{ display:none !important; }
+
+html,body{
+  margin:0; padding:0;
+  height:100%;
+  font-family:var(--font);
+  color:var(--ink);
+  background:var(--bg-1);
+  -webkit-text-size-adjust:100%;
+}
+body{
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,.10) 0 2px, transparent 3px),
+    radial-gradient(circle at 82% 22%, rgba(255,255,255,.10) 0 2px, transparent 3px),
+    radial-gradient(circle at 30% 78%, rgba(255,255,255,.08) 0 2px, transparent 3px),
+    radial-gradient(circle at 68% 62%, rgba(255,255,255,.08) 0 2px, transparent 3px),
+    linear-gradient(160deg, var(--bg-1), var(--bg-2) 60%, #2a1c46);
+  background-attachment:fixed;
+  -webkit-user-select:none; user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  overflow-x:hidden;
+}
+
+ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
+
+/* ============ 上のバー ============ */
+#topbar{
+  position:sticky; top:0; z-index:50;
+  height:calc(var(--topbar-h) + env(safe-area-inset-top));
+  padding-top:env(safe-area-inset-top);
+  display:flex; align-items:center; gap:8px;
+  padding-left:8px; padding-right:8px;
+  background:rgba(16,26,53,.86);
+  backdrop-filter:blur(8px);
+  border-bottom:2px solid rgba(255,204,68,.35);
+}
+#tb-title{
+  flex:1; text-align:center; color:var(--gold);
+  font-weight:800; font-size:clamp(14px,3.6vw,18px); letter-spacing:.02em;
+  text-shadow:0 2px 0 rgba(0,0,0,.4);
+}
+.tb-btn{
+  min-width:44px; height:38px;
+  border:0; border-radius:12px;
+  background:rgba(255,255,255,.14); color:#fff;
+  font-size:18px; font-family:inherit; font-weight:700;
+  cursor:pointer;
+}
+.tb-btn:active{ transform:translateY(2px); }
+#tb-power{
+  color:var(--gold); font-weight:800; font-size:16px;
+  background:rgba(0,0,0,.25); border-radius:999px; padding:4px 12px;
+  min-width:60px; text-align:center;
+}
+#btn-back{ visibility:hidden; }
+#btn-back.is-on{ visibility:visible; }
+
+/* ============ 画面 ============ */
+#main{
+  max-width:900px; margin:0 auto;
+  padding:14px 14px calc(30px + env(safe-area-inset-bottom));
+}
+.screen{ display:none; }
+.screen.is-active{ display:block; animation:fadeUp .28s ease both; }
+@keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+/* ============ ボタン ============ */
+.btn{
+  display:block; width:100%;
+  min-height:var(--tap);
+  margin:10px 0; padding:12px 16px;
+  font-family:inherit; font-size:clamp(16px,4.2vw,20px); font-weight:800;
+  color:var(--ink); background:var(--panel);
+  border:3px solid var(--panel-line); border-radius:var(--radius);
+  box-shadow:0 5px 0 rgba(0,0,0,.35);
+  cursor:pointer; line-height:1.5;
+}
+.btn:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.35); }
+.btn-main{
+  background:linear-gradient(180deg,#ffdd77,var(--gold));
+  border-color:#b98b1d;
+}
+.btn:disabled{ opacity:.5; }
+.btn-link{
+  display:block; margin:18px auto 0; padding:8px;
+  background:none; border:0; color:rgba(255,255,255,.6);
+  font-family:inherit; font-size:14px; text-decoration:underline; cursor:pointer;
+}
+
+/* ============ タイトル画面 ============ */
+.title-wrap{ text-align:center; padding-top:6px; }
+.title-badge{ font-size:54px; filter:drop-shadow(0 6px 8px rgba(0,0,0,.5)); animation:bob 2.6s ease-in-out infinite; }
+@keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+.game-title{
+  margin:4px 0 6px;
+  font-size:clamp(30px,9vw,52px); font-weight:900; line-height:1.15;
+  color:var(--gold);
+  text-shadow:0 3px 0 #8a5a00, 0 6px 14px rgba(0,0,0,.55);
+}
+.game-title .quest{ color:#fff; text-shadow:0 3px 0 #29508f, 0 6px 14px rgba(0,0,0,.55); }
+.title-sub{ color:#e7ecff; font-size:clamp(14px,3.8vw,17px); font-weight:700; line-height:1.9; margin:0 0 10px; }
+.title-chars{ display:flex; align-items:center; justify-content:center; gap:14px; margin:6px 0 14px; }
+.title-chars .tc{ font-size:46px; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+.title-chars .tc-boss{ animation:bob 1.8s ease-in-out infinite; }
+.tc-vs{ color:#fff; font-weight:900; font-size:20px; opacity:.8; }
+.title-btns{ max-width:420px; margin:0 auto; }
+
+/* ============ はかせの ふきだし ============ */
+.talk-bar{
+  display:flex; align-items:flex-start; gap:10px;
+  background:var(--panel); border:3px solid var(--panel-line);
+  border-radius:var(--radius); padding:10px 14px; margin:0 0 12px;
+  box-shadow:0 4px 0 rgba(0,0,0,.3);
+}
+.talk-bar--in{ box-shadow:none; margin:12px 0 0; }
+.talk-face{ font-size:30px; line-height:1.2; flex:none; }
+.talk-text{ margin:0; font-size:clamp(15px,4vw,18px); font-weight:700; line-height:1.7; }
+
+/* ============ ワールド一覧 ============ */
+.world-list{ display:grid; gap:12px; }
+.world-card{
+  position:relative; display:flex; align-items:center; gap:12px;
+  width:100%; text-align:left;
+  padding:14px; min-height:88px;
+  background:var(--panel); border:3px solid var(--panel-line);
+  border-left:12px solid var(--w);
+  border-radius:var(--radius); box-shadow:0 5px 0 rgba(0,0,0,.35);
+  font-family:inherit; cursor:pointer;
+}
+.world-card:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.35); }
+.wc-emoji{ font-size:38px; flex:none; }
+.wc-main{ flex:1; min-width:0; }
+.wc-no{ font-size:12px; font-weight:800; color:#fff; background:var(--w); border-radius:999px; padding:2px 10px; display:inline-block; }
+.wc-name{ font-size:clamp(17px,4.6vw,22px); font-weight:900; margin:4px 0 2px; }
+.wc-theme{ font-size:13px; color:var(--ink-soft); font-weight:700; }
+.wc-stars{ font-size:17px; letter-spacing:1px; color:var(--gold); text-shadow:0 1px 0 rgba(0,0,0,.25); }
+.wc-clear{
+  position:absolute; top:8px; right:10px;
+  font-size:12px; font-weight:900; color:#fff; background:var(--ok);
+  border-radius:999px; padding:3px 10px;
+}
+
+/* ============ バトル ============ */
+#battle-head{ margin-bottom:12px; }
+.enemy-box{
+  display:flex; align-items:center; gap:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+  border:3px solid rgba(255,255,255,.25); border-radius:var(--radius);
+  padding:10px 14px;
+}
+.enemy-face{ font-size:46px; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+.enemy-face.is-hit{ animation:shake .45s ease; }
+@keyframes shake{
+  0%,100%{transform:translateX(0) rotate(0);}
+  20%{transform:translateX(-9px) rotate(-8deg);}
+  45%{transform:translateX(8px) rotate(7deg);}
+  70%{transform:translateX(-5px) rotate(-4deg);}
+}
+.enemy-info{ flex:1; min-width:0; }
+.enemy-name{ color:#fff; font-weight:900; font-size:clamp(15px,4vw,19px); margin-bottom:6px; }
+.hp-bar{ height:16px; background:rgba(0,0,0,.45); border-radius:999px; overflow:hidden; border:2px solid rgba(255,255,255,.35); }
+.hp-fill{ height:100%; width:100%; border-radius:999px; background:linear-gradient(90deg,#ff6b6b,#ffb03a); transition:width .5s cubic-bezier(.3,1.4,.5,1); }
+.q-count{ text-align:right; color:#cfd8f5; font-size:13px; font-weight:800; margin-top:6px; }
+
+.q-body{ margin:0 0 14px; }
+.answers{ display:grid; gap:10px; }
+
+/* こたえの ボタン */
+.ans{
+  position:relative; width:100%;
+  min-height:var(--tap); padding:14px 16px 14px 52px;
+  text-align:left; font-family:inherit;
+  font-size:clamp(15px,4.2vw,19px); font-weight:800; line-height:1.7;
+  color:var(--ink); background:var(--panel);
+  border:3px solid var(--panel-line); border-radius:var(--radius);
+  box-shadow:0 5px 0 rgba(0,0,0,.3); cursor:pointer;
+}
+.ans:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+.ans .ans-mark{
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:30px; height:30px; border-radius:50%;
+  background:var(--w); color:#fff; font-size:15px; font-weight:900;
+  display:flex; align-items:center; justify-content:center;
+}
+.ans.is-ng{ background:#efe7dc; color:#9b8f80; box-shadow:none; transform:translateY(4px); }
+.ans.is-ng .ans-mark{ background:#b9ada0; }
+.ans.is-ok{ background:var(--ok-soft); border-color:var(--ok); }
+.ans.wrong-shake{ animation:shake .4s ease; }
+.ans-genkou{ padding:12px 12px 12px 52px; }
+
+/* ○× */
+.ox-wrap{ display:flex; gap:14px; }
+.ox{
+  flex:1; min-height:96px; border-radius:24px;
+  border:4px solid var(--panel-line); background:var(--panel);
+  font-size:52px; font-weight:900; font-family:inherit; color:var(--ink);
+  box-shadow:0 6px 0 rgba(0,0,0,.3); cursor:pointer;
+}
+.ox:active{ transform:translateY(5px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+.ox.o{ color:#e2555f; }
+.ox.x{ color:#4a7bd0; }
+.ox.is-ng{ opacity:.4; }
+.statement{
+  background:var(--panel); border:3px dashed var(--panel-line); border-radius:var(--radius);
+  padding:16px; margin:0 0 14px;
+  font-size:clamp(16px,4.6vw,21px); font-weight:800; line-height:1.9; text-align:center;
+}
+
+/* 「、」を入れる場所（スロット） */
+.slot-sentence{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+  gap:2px; background:var(--panel); border:3px solid var(--panel-line);
+  border-radius:var(--radius); padding:16px 10px;
+  font-size:clamp(17px,4.6vw,22px); font-weight:800; line-height:2;
+}
+.slot-btn{
+  width:42px; height:50px; border-radius:10px;
+  border:3px dashed #bda67c; background:#fffdf6;
+  color:#c0a878; font-size:20px; font-weight:900; font-family:inherit; cursor:pointer;
+}
+.slot-btn:active{ transform:translateY(3px); }
+.slot-btn.is-ok{ background:var(--ok-soft); border-style:solid; border-color:var(--ok); color:var(--ok); }
+.slot-btn.is-ng{ opacity:.35; }
+
+/* ならべかえ */
+.order-slots{ display:flex; gap:8px; margin-bottom:12px; }
+.order-slot{
+  flex:1; min-height:48px; border-radius:14px;
+  border:3px dashed rgba(255,255,255,.4); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; padding:6px; text-align:center; line-height:1.4;
+}
+.order-slot.is-filled{ background:var(--panel); color:var(--ink); border-style:solid; border-color:var(--panel-line); }
+.order-num{ font-size:11px; opacity:.7; display:block; }
+.ans.is-picked{ opacity:.35; }
+
+/* ============ げんこう用紙（たて書き） ============ */
+/* 行は 右から 左へ、字は 上から 下へ ならぶ 本ものの げんこう用紙と 同じならび */
+.genkou-wrap{ display:flex; justify-content:center; }
+.genkou{
+  display:grid;
+  direction:rtl;                                        /* 行を 右から 左へ */
+  grid-auto-flow:column;                                /* 字を 上から 下へ */
+  grid-template-rows:repeat(var(--chars), var(--cell)); /* 1行の 文字数 */
+  grid-auto-columns:var(--cell);
+  background:#fffdf5;
+  border:3px solid #b8985f; border-radius:8px;
+  padding:4px;
+  box-shadow:0 5px 0 rgba(0,0,0,.3);
+}
+.gcell{
+  direction:ltr;
+  writing-mode:vertical-rl;                             /* マスの中の字も たて書き */
+  text-orientation:mixed;
+  width:var(--cell); height:var(--cell);
+  border:1px solid #e3d3ae;
+  display:flex; align-items:center; justify-content:center;
+  font-size:calc(var(--cell) * .68); font-weight:700; line-height:1;
+  color:var(--ink);
+}
+.gcell .gc-main{ display:block; }
+.gcell .gc-sub{ font-size:.6em; }
+/* 「、」「。」や 小さい字は マスの 右上に よせる（たて書きの きまり） */
+.gcell.k-punct, .gcell.k-small{ align-items:flex-start; justify-content:flex-start; }
+/* 行の さいごの 字と 同じマスに 入った 句読点（ぶら下がり）
+   字は ふつうの 大きさのまま、句読点だけ マスの 右下に 小さく そえる */
+.gcell.k-tail{ position:relative; }
+.gcell.k-tail .gc-sub{
+  position:absolute; right:0; bottom:-.04em;
+  font-size:.62em; line-height:1;
+}
+/* 「。」と とじかっこが 同じマスに 入った ばあい */
+.gcell.k-pair{ font-size:calc(var(--cell) * .46); }
+.gcell.k-pair .gc-sub{ font-size:1em; }
+/* タップできる マス */
+.gcell.tapable{ cursor:pointer; }
+.gcell.tapable:active{ background:#fff2c9; }
+.gcell.hit{ background:var(--ok-soft); box-shadow:inset 0 0 0 3px var(--ok); }
+.gcell.miss{ animation:cellmiss .4s ease; }
+@keyframes cellmiss{ 0%,100%{background:#fffdf5;} 40%{background:var(--ng-soft);} }
+.gcell.mark{ box-shadow:inset 0 0 0 3px var(--gold); }
+.genkou.is-locked .gcell.tapable{ cursor:default; }
+.genkou-box{ display:block; }
+.genkou-label{
+  text-align:center; color:#fff; font-size:12px; font-weight:800;
+  margin-bottom:6px; opacity:.85;
+}
+
+/* くらべる（正しい・まちがい） */
+.compare{ display:grid; gap:10px; }
+.cmp-box{ background:var(--panel); border:3px solid var(--panel-line); border-radius:14px; padding:10px 12px; }
+.cmp-box.ok{ border-color:var(--ok); background:var(--ok-soft); }
+.cmp-box.ng{ border-color:var(--ng); background:var(--ng-soft); }
+.cmp-tag{ font-size:12px; font-weight:900; margin-bottom:4px; }
+.cmp-box.ok .cmp-tag{ color:#1c7a44; }
+.cmp-box.ng .cmp-tag{ color:#c05a1c; }
+.cmp-text{ font-size:clamp(15px,4.2vw,19px); font-weight:800; line-height:1.8; white-space:pre-wrap; }
+
+/* ============ こたえ合わせパネル ============ */
+.verdict{
+  position:fixed; inset:0; z-index:60;
+  background:rgba(10,16,34,.72);
+  display:flex; align-items:flex-end; justify-content:center;
+  padding:10px; overflow-y:auto;
+  animation:fadeUp .2s ease both;
+}
+.verdict-inner{
+  width:100%; max-width:640px;
+  background:var(--panel); border:4px solid var(--panel-line);
+  border-radius:24px; padding:16px;
+  box-shadow:0 -6px 30px rgba(0,0,0,.5);
+  margin:auto 0 0;
+  animation:slideUp .3s cubic-bezier(.2,1.2,.4,1) both;
+}
+@keyframes slideUp{ from{transform:translateY(40px); opacity:0;} to{transform:none; opacity:1;} }
+.verdict-title{ text-align:center; font-size:clamp(22px,6vw,30px); font-weight:900; color:var(--ok); margin-bottom:8px; }
+.verdict-rule{
+  background:#fff; border:2px solid var(--panel-line); border-radius:12px;
+  padding:8px 12px; font-size:14px; font-weight:800; color:var(--ink-soft);
+  margin-bottom:10px; text-align:center;
+}
+.verdict-compare{ margin-bottom:4px; }
+#btn-next{ margin-top:14px; }
+
+/* ============ 演出 ============ */
+#fx-layer{ position:fixed; inset:0; pointer-events:none; z-index:70; overflow:hidden; }
+.spark{ position:absolute; font-size:26px; animation:sparkUp 1s ease-out forwards; }
+@keyframes sparkUp{
+  0%{ transform:translate(0,0) scale(.4); opacity:0; }
+  25%{ opacity:1; }
+  100%{ transform:translate(var(--dx), var(--dy)) scale(1.3) rotate(var(--rot)); opacity:0; }
+}
+.dmg{
+  position:absolute; font-size:30px; font-weight:900; color:#fff;
+  text-shadow:0 3px 0 #c33, 0 0 12px rgba(255,80,80,.9);
+  animation:dmgUp 1s ease-out forwards;
+}
+@keyframes dmgUp{
+  0%{ transform:translate(-50%,0) scale(.6); opacity:0; }
+  20%{ transform:translate(-50%,-14px) scale(1.25); opacity:1; }
+  100%{ transform:translate(-50%,-70px) scale(1); opacity:0; }
+}
+.flash{
+  position:fixed; inset:0; z-index:80; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+}
+.flash span{
+  font-size:clamp(34px,11vw,64px); font-weight:900; color:#fff;
+  text-shadow:0 4px 0 rgba(0,0,0,.4), 0 0 22px var(--gold);
+  animation:pop .9s cubic-bezier(.2,1.6,.4,1) forwards;
+}
+.flash.ng span{ text-shadow:0 4px 0 rgba(0,0,0,.35), 0 0 22px var(--ng); }
+@keyframes pop{
+  0%{ transform:scale(.3) rotate(-8deg); opacity:0; }
+  25%{ transform:scale(1.15) rotate(2deg); opacity:1; }
+  70%{ transform:scale(1) rotate(0); opacity:1; }
+  100%{ transform:scale(1.05); opacity:0; }
+}
+
+/* ============ けっか画面 ============ */
+.result-body{ text-align:center; }
+.result-emoji{ font-size:64px; animation:bob 2s ease-in-out infinite; }
+.result-title{ font-size:clamp(24px,7vw,36px); font-weight:900; color:var(--gold); text-shadow:0 3px 0 #8a5a00; margin:6px 0; }
+.result-stars{ font-size:clamp(32px,9vw,46px); letter-spacing:4px; color:var(--gold); margin:4px 0 10px; text-shadow:0 2px 0 rgba(0,0,0,.3); }
+.result-panel{
+  background:var(--panel); border:3px solid var(--panel-line); border-radius:var(--radius);
+  padding:14px; margin:0 auto 14px; max-width:480px; text-align:left;
+}
+.result-row{ display:flex; justify-content:space-between; font-size:16px; font-weight:800; padding:6px 0; border-bottom:2px dotted #e0d2b4; }
+.result-row:last-child{ border:0; }
+.result-btns{ max-width:420px; margin:0 auto; }
+
+/* ============ 作文チェック ============ */
+.sample-box{ margin-bottom:12px; }
+.sample-toggle{
+  width:100%; min-height:48px; padding:10px 14px;
+  font-family:inherit; font-size:clamp(14px,3.8vw,17px); font-weight:800;
+  color:#fff; background:rgba(255,255,255,.14);
+  border:2px solid rgba(255,255,255,.3); border-radius:14px; cursor:pointer;
+}
+.sample-toggle:active{ transform:translateY(2px); }
+.sample-body{ margin-top:10px; }
+.sample-body{ display:block; }
+.check-meter{ height:18px; background:rgba(0,0,0,.35); border:2px solid rgba(255,255,255,.3); border-radius:999px; overflow:hidden; margin-bottom:12px; }
+.check-meter-fill{ height:100%; width:0%; background:linear-gradient(90deg,#6ee7a6,var(--gold)); transition:width .4s ease; }
+.check-list{ display:grid; gap:10px; }
+.check-item{
+  display:flex; align-items:center; gap:12px;
+  width:100%; padding:12px 14px; min-height:var(--tap);
+  background:var(--panel); border:3px solid var(--panel-line); border-radius:var(--radius);
+  box-shadow:0 4px 0 rgba(0,0,0,.3);
+  font-family:inherit; font-size:clamp(15px,4.2vw,18px); font-weight:800; text-align:left;
+  color:var(--ink); cursor:pointer; line-height:1.6;
+}
+.check-item:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+.check-box{
+  flex:none; width:34px; height:34px; border-radius:10px;
+  border:3px solid var(--panel-line); background:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:22px; color:transparent;
+}
+.check-item.is-on{ background:var(--ok-soft); border-color:var(--ok); }
+.check-item.is-on .check-box{ background:var(--ok); border-color:var(--ok); color:#fff; }
+.check-tip{ font-size:13px; font-weight:700; color:var(--ink-soft); margin-top:4px; line-height:1.6; }
+.check-foot{ margin-top:16px; }
+
+/* ============ きろく ============ */
+.record-body h2{ color:#fff; font-size:clamp(18px,5vw,24px); margin:18px 0 10px; text-shadow:0 2px 0 rgba(0,0,0,.4); }
+.rec-panel{ background:var(--panel); border:3px solid var(--panel-line); border-radius:var(--radius); padding:12px 14px; }
+.rec-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:2px dotted #e0d2b4; }
+.rec-row:last-child{ border:0; }
+.rec-icon{ font-size:24px; flex:none; }
+.rec-label{ flex:1; font-size:clamp(14px,4vw,17px); font-weight:800; }
+.rec-stars{ color:var(--gold); font-size:clamp(16px,4.6vw,20px); letter-spacing:2px; text-shadow:0 1px 0 rgba(0,0,0,.25); }
+.rec-sub{ font-size:12px; color:var(--ink-soft); font-weight:700; }
+.rec-total{ text-align:center; color:#fff; font-weight:900; font-size:18px; margin:10px 0 0; }
+
+/* ============ 横に広い画面（iPad 横向き など） ============ */
+@media (min-width:700px){
+  .world-list{ grid-template-columns:repeat(2,1fr); }
+  .compare{ grid-template-columns:repeat(2,1fr); }
+}
+/* げんこう用紙の せんたくしは たて長なので、はやめに 2れつに ならべる */
+@media (min-width:600px){
+  .answers.two-col{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-height:480px) and (orientation:landscape){
+  .title-badge{ font-size:36px; }
+  .title-chars .tc{ font-size:34px; }
+  .btn{ min-height:48px; margin:8px 0; }
+}
+
+</style>
+<div id="app">
+
+  <!-- ============ 上のバー ============ -->
+  <header id="topbar">
+    <button id="btn-back" class="tb-btn" aria-label="もどる">◀</button>
+    <div id="tb-title">作文マスター・クエスト</div>
+    <div id="tb-power" title="作文パワー">✨<span id="power-num">0</span></div>
+    <button id="btn-sound" class="tb-btn" aria-label="音">🔊</button>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ タイトル画面 ============ -->
+    <section id="screen-title" class="screen">
+      <div class="title-wrap">
+        <div class="title-badge">📜</div>
+        <h1 class="game-title">作文マスター<br><span class="quest">クエスト</span></h1>
+        <p class="title-sub">きみは 作文の <ruby>勇者<rt>ゆうしゃ</rt></ruby>！<br>マチガエール<ruby>魔王<rt>まおう</rt></ruby>を たおしに 行こう。</p>
+        <div class="title-chars">
+          <span class="tc">🦸</span><span class="tc-vs">VS</span><span class="tc tc-boss">🐸</span>
+        </div>
+        <div class="title-btns">
+          <button class="btn btn-main" data-go="map">▶ ぼうけんに 出る</button>
+          <button class="btn" data-go="check">📝 作文チェック</button>
+          <button class="btn" data-go="record">⭐ きろくを 見る</button>
+        </div>
+        <button class="btn-link" id="btn-reset">さいしょから やりなおす</button>
+      </div>
+    </section>
+
+    <!-- ============ ステージ選択（ワールドマップ） ============ -->
+    <section id="screen-map" class="screen">
+      <div class="talk-bar">
+        <span class="talk-face">🦉</span>
+        <p class="talk-text" id="map-talk">どのステージに 行くか えらんでね。</p>
+      </div>
+      <div id="world-list" class="world-list"></div>
+    </section>
+
+    <!-- ============ バトル画面 ============ -->
+    <section id="screen-battle" class="screen">
+      <div id="battle-head">
+        <div class="enemy-box">
+          <div class="enemy-face" id="enemy-face">🐸</div>
+          <div class="enemy-info">
+            <div class="enemy-name" id="enemy-name">マチガエル</div>
+            <div class="hp-bar"><div class="hp-fill" id="hp-fill"></div></div>
+          </div>
+        </div>
+        <div class="q-count" id="q-count">1もん目 / 5もん</div>
+      </div>
+
+      <div id="battle-body">
+        <div class="talk-bar">
+          <span class="talk-face">🦉</span>
+          <p class="talk-text" id="q-text">どこが おかしい？</p>
+        </div>
+        <div id="q-body" class="q-body"></div>
+        <div id="answers" class="answers"></div>
+      </div>
+
+    </section>
+
+    <!-- ============ けっか画面 ============ -->
+    <section id="screen-result" class="screen">
+      <div id="result-body" class="result-body"></div>
+    </section>
+
+    <!-- ============ 作文チェックモード ============ -->
+    <section id="screen-check" class="screen">
+      <div class="talk-bar">
+        <span class="talk-face">🦉</span>
+        <p class="talk-text">じぶんの 作文を 読みかえして、できたら タップしよう。</p>
+      </div>
+      <div class="sample-box">
+        <button class="sample-toggle" id="btn-sample">📄 お手本の げんこう用紙を 見る　▼</button>
+        <div id="sample-body" class="sample-body" hidden></div>
+      </div>
+      <div id="check-meter" class="check-meter"><div class="check-meter-fill" id="check-meter-fill"></div></div>
+      <div id="check-list" class="check-list"></div>
+      <div class="check-foot">
+        <button class="btn" id="btn-check-clear">チェックを ぜんぶ けす</button>
+      </div>
+    </section>
+
+    <!-- ============ きろく（身につき度） ============ -->
+    <section id="screen-record" class="screen">
+      <div id="record-body" class="record-body"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- こたえ合わせパネル（画面のアニメーションの えいきょうを うけないよう body の 子にする） -->
+<div id="verdict" class="verdict" hidden>
+  <div class="verdict-inner">
+    <div class="verdict-title" id="verdict-title">せいかい！</div>
+    <div class="verdict-rule" id="verdict-rule"></div>
+    <div class="verdict-compare" id="verdict-compare"></div>
+    <div class="talk-bar talk-bar--in">
+      <span class="talk-face">🦉</span>
+      <p class="talk-text" id="verdict-exp"></p>
+    </div>
+    <button class="btn btn-main" id="btn-next">つぎへ ▶</button>
+  </div>
+</div>
+
+<!-- 演出レイヤー -->
+<div id="fx-layer" aria-hidden="true"></div>
+<div id="flash" class="flash" hidden><span id="flash-text"></span></div>
+
+<script>
+'use strict';
+/* =========================================================
+   作文マスター・クエスト  data.js  ―― もんだいデータ
+   ---------------------------------------------------------
+   ★ このファイルに データを ふやすだけで もんだいが ふえます。
+     script.js（ゲームのしくみ）は 書きかえなくて OK。
+
+   【ルール1つの かたち】
+     id               : RULE-0xx  （かならず ちがう名前に）
+     world            : w1〜w5     （どのワールドに 出すか）
+     type             : 'rule' | 'skill' | 'school_rule'
+     category         : genkou / moji / kaiwa / bun / kuwashiku（身につき度の分け方）
+     skill            : 身につく力（みじかい ことば）
+     difficulty       : 1〜3
+     title            : ルールの 名前
+     childExplanation : 子ども向けの せつめい（作文はかせが 話す）
+     correctExample   : 正しい 書きかた
+     wrongExample     : まちがった 書きかた
+     hint             : まちがえた ときの ヒント
+     questionType     : 'ox' | 'choice' | 'find' | 'slot' | 'order' | 'rewrite'
+
+   【げんこう用紙（manuscript）の 書きかた】※ たて書きです
+     { cols: 9, rows: ['　きのう、公園へ','行きました。'] }
+       ・cols  = 1行に 入る 文字数（たてに ならぶ マスの数）
+       ・rows  = 行。はいれつの さいしょが いちばん右の行、つぎが その左…
+       ・rows の 1文字が 1マス。字は 上から 下へ ならぶ
+       ・'　'（全角スペース）は 空きマス
+       ・行の さいご（いちばん下）に 「、」「。」が あふれたら、じどうで 同じマスに 入る
+       ・'。' の あとの '」' も じどうで 同じマスに 入る
+       ・merge:false にすると わざと ルール違反の 見た目に できる（まちがい例よう）
+   ========================================================= */
+
+/* ---------- とうじょう キャラクター ---------- */
+/* 画像に さしかえるときは emoji を img: 'img/xxx.png' に かえて使う */
+const CHARACTERS = {
+  hero:   { name:'作文の勇者',   emoji:'🦸' },
+  hakase: { name:'作文はかせ',   emoji:'🦉' },
+  maou:   { name:'マチガエール魔王', emoji:'🐸' }
+};
+
+/* ---------- 身につき度の カテゴリ ---------- */
+const CATEGORIES = {
+  genkou:    { label:'げんこう用紙', emoji:'📄' },
+  moji:      { label:'文字',        emoji:'✏️' },
+  kaiwa:     { label:'かい話',      emoji:'💬' },
+  bun:       { label:'文',          emoji:'🔗' },
+  kuwashiku: { label:'くわしく',    emoji:'🔍' }
+};
+
+/* ---------- ワールド（ステージ） ---------- */
+const WORLDS = [
+  { id:'w1', no:1, emoji:'🌳', color:'#3fa96a',
+    name:'げんこう用紙の森',
+    theme:'正しく書くための きほんルール',
+    enemy:{ name:'もりの マチガエル', emoji:'🐸' } },
+
+  { id:'w2', no:2, emoji:'🕯️', color:'#5a7fd6',
+    name:'文字の どうくつ',
+    theme:'文字を 正しく 書こう',
+    enemy:{ name:'どうくつ マチガエル', emoji:'🐛' } },
+
+  { id:'w3', no:3, emoji:'🏰', color:'#e07aa8',
+    name:'おしゃべり<ruby>城<rt>じょう</rt></ruby>',
+    plain:'おしゃべり城',
+    theme:'かい話文を 正しく 書こう',
+    enemy:{ name:'おしゃべり マチガエル', emoji:'🦜' } },
+
+  { id:'w4', no:4, emoji:'🛣️', color:'#e8933a',
+    name:'文しょうロード',
+    theme:'文を 分かりやすく つなごう',
+    enemy:{ name:'みちまよい マチガエル', emoji:'🐌' } },
+
+  { id:'w5', no:5, emoji:'👑', color:'#a45cd6',
+    name:'マチガエール<ruby>魔王城<rt>まおうじょう</rt></ruby>',
+    plain:'マチガエール魔王城',
+    theme:'もっと つたわる 作文に しよう',
+    boss:true,
+    enemy:{ name:'マチガエール魔王', emoji:'🐸' } }
+];
+
+/* =========================================================
+   もんだいデータ
+   ========================================================= */
+const RULES = [
+
+/* ===================== WORLD 1 げんこう用紙の森 ===================== */
+{
+  id:'RULE-001', world:'w1', type:'school_rule', category:'genkou',
+  skill:'だい名の 書きかた', difficulty:1,
+  title:'だい名は 上を 2〜3マス あけて 書く',
+  childExplanation:'だい名は 1行目に 書きます。上を 2〜3マス あけて 書くと、とても 見やすく なりますよ。',
+  correctExample:'　　　なつやすみの日',
+  wrongExample:'なつやすみの日',
+  hint:'お手本の 1行目を 見てみよう。上に 空いている マスは いくつ あるかな？',
+  questionType:'ox',
+  question:'お手本を 見ながら こたえよう。これは 正しい？',
+  statement:'だい名は、1行目の 上を 2〜3マス あけて 書く。',
+  // お手本（正しい 書きかた）を げんこう用紙で 見せる
+  manuscript:{ cols:10, rows:['　　　なつやすみの日'] },
+  manuscriptLabel:'お手本：上を 3マス あけた だい名',
+  answer:true
+},
+{
+  id:'RULE-002', world:'w1', type:'school_rule', category:'genkou',
+  skill:'名前の 書きかた', difficulty:1,
+  title:'名前は 2行目に、名字と 名前の あいだを あけて 書く',
+  childExplanation:'名前は 2行目に 書きます。名字と 名前の あいだを 1マス あけて、下も 1マス あけて 書くと、とても きれいに そろいますよ。',
+  correctExample:'下を 1マス あけて　山田　たろう',
+  wrongExample:'いちばん上から　山田たろう',
+  hint:'名前は 行の 上と 下、どちらに よせると きれいかな？ 名字と 名前の あいだも 見てみよう。',
+  questionType:'choice',
+  question:'名前の 書きかたで 正しいのは どっち？',
+  choices:[
+    { manuscript:{ cols:12, rows:['山田たろう'] } },
+    { manuscript:{ cols:12, rows:['　　　　　山田　たろう'] } }
+  ],
+  answer:1
+},
+{
+  id:'RULE-012', world:'w1', type:'rule', category:'genkou',
+  skill:'だんらくの 一マス空け', difficulty:1,
+  title:'だんらくの さいしょは 一マス あける',
+  childExplanation:'あたらしい だんらくの さいしょは、かならず 一マス あけて 書きはじめます。ここが 作文の きほんですよ！',
+  correctExample:'　きのう、公園へ行きました。',
+  wrongExample:'きのう、公園へ行きました。',
+  hint:'いちばん さいしょの マスを よーく 見てみよう。',
+  questionType:'choice',
+  question:'書きはじめが 正しいのは どっち？',
+  choices:[
+    { manuscript:{ cols:9, rows:['きのう、公園へ行き','ました。'] } },
+    { manuscript:{ cols:9, rows:['　きのう、公園へ行','きました。'] } }
+  ],
+  answer:1
+},
+{
+  id:'RULE-004', world:'w1', type:'rule', category:'genkou',
+  skill:'行のさいごの 句読点', difficulty:2,
+  title:'「、」「。」は つぎの行の 上に 書かない',
+  childExplanation:'「、」や「。」は、つぎの行の いちばん上には 書きません。行の さいごに なったら、さいごの 字と 同じマスに 入れます。',
+  correctExample:'たのしかった。\n← さいごの「た」と「。」を 同じマスに 入れる',
+  wrongExample:'たのしかった\n。 ← 「。」だけ つぎの行の いちばん上',
+  hint:'「。」が つぎの行の いちばん上に きて いないかな？',
+  questionType:'choice',
+  question:'「。」の 入れかたが 正しいのは どっち？',
+  choices:[
+    { manuscript:{ cols:7, rows:['　きょうはとて','もたのしかった','。'] } },
+    { manuscript:{ cols:7, rows:['　きょうはとて','もたのしかった。'] } }
+  ],
+  answer:1
+},
+{
+  id:'RULE-005', world:'w1', type:'rule', category:'genkou',
+  skill:'読点（、）の いれどころ', difficulty:2,
+  title:'「、」は ことばの まとまりで 入れる',
+  childExplanation:'「、」は 読むときに 一息 つくところに 入れます。ことばの まとまりの とちゅうで 切ってしまうと、読みにくく なりますよ。入れる ばしょは 一つだけとは かぎりません。',
+  correctExample:'あさ、はやくおきて学校へ行きました。',
+  wrongExample:'あさはやく、おきて学校へ行きました。',
+  hint:'「はやくおきて」の まん中で 切ると 読みにくいね。ことばの まとまりを 見てみよう。',
+  questionType:'slot',
+  question:'「、」を 入れると 読みやすい ところは どこ？',
+  parts:['あさ','はやく','おきて','学校へ行きました。'],
+  answers:[0,2], anyOf:true,
+  insert:'、'
+},
+{
+  id:'RULE-006', world:'w1', type:'rule', category:'genkou',
+  skill:'一マス空けの 見なおし', difficulty:2,
+  title:'書きはじめの マスを たしかめる',
+  childExplanation:'この 作文は、だんらくの さいしょが 一マス あいて いませんでした。書きおわったら さいしょの マスを たしかめましょう。',
+  correctExample:'　きょう、学校でなわとびをしました。',
+  wrongExample:'きょう、学校でなわとびをしました。',
+  hint:'1行目の いちばん さいしょの マスだよ。',
+  questionType:'find',
+  question:'おかしい マスを タップしよう。',
+  manuscript:{ cols:9, rows:['きょう、学校でなわ','とびをしました。'] },
+  answers:[[0,0]]
+},
+{
+  id:'RULE-007', world:'w1', type:'rule', category:'genkou',
+  skill:'文の おわりの 句点', difficulty:1,
+  title:'文の おわりには「。」をつける',
+  childExplanation:'文が おわったら、かならず「。」を つけます。「。」も 一マス つかいますよ。',
+  correctExample:'　きょうは犬とあそびました。',
+  wrongExample:'　きょうは犬とあそびました',
+  hint:'さいごの 字の つぎの マスを 見てみよう。',
+  questionType:'find',
+  question:'「。」を わすれて いるよ。「。」が 入る マスを タップしよう。',
+  manuscript:{ cols:9, rows:['　きょうは犬とあそ','びました'] },
+  answers:[[1,4]]
+},
+
+/* ===================== WORLD 2 文字のどうくつ ===================== */
+{
+  id:'RULE-101', world:'w2', type:'rule', category:'moji',
+  skill:'じょし「は」', difficulty:1,
+  title:'「わ」と 読んでも「は」と 書く',
+  childExplanation:'「わたしは」の「は」は、「わ」と 読みますが「は」と 書きます。「〜は」は 文の 主語に つく しるしです。',
+  correctExample:'わたしは、公園へ行きました。',
+  wrongExample:'わたしわ、公園へ行きました。',
+  hint:'「わたし◯」の ところだよ。声に 出して 読んでみよう。',
+  questionType:'find',
+  question:'おかしい 字の マスを タップしよう。',
+  manuscript:{ cols:9, rows:['　わたしわ、公園','へ行きました。'] },
+  answers:[[0,4]]
+},
+{
+  id:'RULE-102', world:'w2', type:'rule', category:'moji',
+  skill:'じょし「へ」', difficulty:1,
+  title:'「え」と 読んでも「へ」と 書く',
+  childExplanation:'「学校へ」の「へ」は、「え」と 読みますが「へ」と 書きます。行く ばしょの あとに つきますよ。',
+  correctExample:'学校へ 行きます。',
+  wrongExample:'学校え 行きます。',
+  hint:'「どこへ 行く」の ときに つかう 字だよ。',
+  questionType:'choice',
+  question:'正しいのは どっち？',
+  choices:[ { text:'学校え 行きます。' }, { text:'学校へ 行きます。' } ],
+  answer:1
+},
+{
+  id:'RULE-103', world:'w2', type:'rule', category:'moji',
+  skill:'じょし「を」', difficulty:1,
+  title:'「お」と 読んでも「を」と 書く',
+  childExplanation:'「パンを 食べる」の「を」は、「お」と 読みますが「を」と 書きます。「何を するか」を あらわす ときに つかいます。',
+  correctExample:'パンを 食べました。',
+  wrongExample:'パンお 食べました。',
+  hint:'「何を したか」を あらわす 字だよ。',
+  questionType:'choice',
+  question:'正しいのは どっち？',
+  choices:[ { text:'パンお 食べました。' }, { text:'パンを 食べました。' } ],
+  answer:1
+},
+{
+  id:'RULE-104', world:'w2', type:'rule', category:'moji',
+  skill:'小さい「っ」', difficulty:2,
+  title:'つまる音は 小さい「っ」で 書く',
+  childExplanation:'「らっぱ」「がっこう」のように、つまる音は 小さい「っ」で 書きます。大きい「つ」だと 読みかたが かわって しまいますよ。',
+  correctExample:'ぼくは、らっぱをふきました。',
+  wrongExample:'ぼくは、らつぱをふきました。',
+  hint:'「ら◯ぱ」の ところ。声に 出すと つまる音が するね。',
+  questionType:'find',
+  question:'おかしい 字の マスを タップしよう。',
+  manuscript:{ cols:9, rows:['　ぼくは、らつぱ','をふきました。'] },
+  answers:[[0,6]]
+},
+{
+  id:'RULE-105', world:'w2', type:'rule', category:'moji',
+  skill:'小さい「ゃ・ゅ・ょ」', difficulty:2,
+  title:'ねじれる音は 小さい「ゃ・ゅ・ょ」',
+  childExplanation:'「きゅうしょく」のように、ねじれる音は 小さい「ゃ・ゅ・ょ」で 書きます。2つ ありますよ。よく さがしてね。',
+  correctExample:'きゅうしょくの時間です。',
+  wrongExample:'きゆうしよくの時間です。',
+  hint:'「き◯うし◯く」。小さく 書く 字が 2つ あるよ。',
+  questionType:'find',
+  question:'おかしい 字の マスを ぜんぶ タップしよう。（2つ）',
+  manuscript:{ cols:9, rows:['　きゆうしよくの','時間です。'] },
+  answers:[[0,2],[0,5]]
+},
+{
+  id:'RULE-106', world:'w2', type:'rule', category:'moji',
+  skill:'長音「ー」', difficulty:2,
+  title:'カタカナの のばす音は「ー」',
+  childExplanation:'カタカナで のばす音は「ー」を つかいます。「ラーメン」「カード」「ケーキ」みたいに ですね。',
+  correctExample:'ラーメンを 食べました。',
+  wrongExample:'ラあメンを 食べました。',
+  hint:'カタカナで のばす音を 書くときの しるしだよ。',
+  questionType:'choice',
+  question:'正しいのは どっち？',
+  choices:[ { text:'ラーメンを 食べました。' }, { text:'ラあメンを 食べました。' } ],
+  answer:0
+},
+{
+  id:'RULE-107', world:'w2', type:'school_rule', category:'moji',
+  skill:'小さい字の マス', difficulty:1,
+  title:'小さい字も 一マス つかう',
+  childExplanation:'小さい「っ」や「ゃ」「ゅ」「ょ」も、げんこう用紙では 一マス つかって 書きます。マスの 左下に 小さく 書きましょう。',
+  correctExample:'「がっこう」は 4マス つかう',
+  wrongExample:'「がっこう」を 3マスに 書く',
+  hint:'小さい字も、ちゃんと 一つの マスに 入るよ。',
+  questionType:'ox',
+  question:'これは 正しい？',
+  statement:'小さい「っ」や「ゃ」も、一マス つかって 書く。',
+  answer:true
+},
+{
+  id:'RULE-108', world:'w2', type:'rule', category:'moji',
+  skill:'は・へ・を の 見なおし', difficulty:3,
+  title:'は・へ・を を 見なおそう',
+  childExplanation:'「学校へ」の「へ」、「本を」の「を」。声に 出して 読むと 見つけやすく なりますよ。',
+  correctExample:'　きのう、学校へ行って、本をよみました。',
+  wrongExample:'　きのう、学校え行って、本およみました。',
+  hint:'「学校◯」と「本◯」の ところを 見てみよう。',
+  questionType:'find',
+  question:'おかしい 字の マスを ぜんぶ タップしよう。（2つ）',
+  manuscript:{ cols:9, rows:['　きのう、学校え','行って、本およみ','ました。'] },
+  answers:[[0,7],[1,5]]
+},
+
+/* ===================== WORLD 3 おしゃべり城 ===================== */
+{
+  id:'RULE-201', world:'w3', type:'rule', category:'kaiwa',
+  skill:'かぎかっこ', difficulty:1,
+  title:'話した ことばは「　」で かこむ',
+  childExplanation:'人が 話した ことばは、かぎかっこ「　」で かこんで 書きます。だれかの 声が 聞こえてくる みたいですね。',
+  correctExample:'「おはよう。」と言いました。',
+  wrongExample:'おはよう。と言いました。',
+  hint:'話した ことばの はじめと おわりに つける しるしだよ。',
+  questionType:'ox',
+  question:'これは 正しい？',
+  statement:'人が 話した ことばは、「　」で かこんで 書く。',
+  answer:true
+},
+{
+  id:'RULE-202', world:'w3', type:'rule', category:'kaiwa',
+  skill:'かい話文の 改行', difficulty:2,
+  title:'かい話文は 行を かえて 書く',
+  childExplanation:'かい話文は、行を かえて 書きはじめます。そうすると、だれかが 話しはじめたことが すぐに 分かりますよ。',
+  correctExample:'　あさ、お母さんが言いました。\n「おはよう。」',
+  wrongExample:'　あさ、お母さんが「おはよう。」と言いました。',
+  hint:'話した ことばは、あたらしい 行から 書きはじめよう。',
+  questionType:'choice',
+  question:'かい話文の 書きかたが 正しいのは どっち？',
+  choices:[
+    { manuscript:{ cols:9, rows:['　あさ、お母さん','が「おはよう。」','と言いました。'] } },
+    { manuscript:{ cols:9, rows:['　あさ、お母さんが','言いました。','「おはよう。」'] } }
+  ],
+  answer:1
+},
+{
+  id:'RULE-203', world:'w3', type:'rule', category:'kaiwa',
+  skill:'かい話文2行目の 一字下げ', difficulty:3,
+  title:'かい話文が 2行に なったら 2行目も 一字下げる',
+  childExplanation:'かい話文が 2行いじょうに なったら、2行目からも 一マス あけて 書きます。どこまでが 話した ことばか、はっきり 分かりますよ。',
+  correctExample:'「きょうは、とて\n　もたのしかった\n　よ。」',
+  wrongExample:'「きょうは、とて\nもたのしかった\nよ。」',
+  hint:'2行目の さいしょの マスを 見てみよう。かい話は まだ つづいて いるね。',
+  questionType:'choice',
+  question:'2行に なった かい話文。正しいのは どっち？',
+  choices:[
+    { manuscript:{ cols:9, rows:['「きょうは、とて','もたのしかった','よ。」'] } },
+    { manuscript:{ cols:9, rows:['「きょうは、とて','　もたのしかった','　よ。」'] } }
+  ],
+  answer:1
+},
+{
+  id:'RULE-204', world:'w3', type:'rule', category:'kaiwa',
+  skill:'「。」と とじかっこ', difficulty:2,
+  title:'「。」と とじかっこは 同じマスに 入れる',
+  childExplanation:'かい話文の おわりの「。」と とじかっこ「」」は、同じマスに いっしょに 入れます。2マス つかっては いけませんよ。',
+  correctExample:'「ありがとう。」 ← さいごは 1マスに「。」」',
+  wrongExample:'「ありがとう。」 ← 「。」と「」」が べつのマス',
+  hint:'さいごの 2つの しるしは、なかよく 同じマスに 入るよ。',
+  questionType:'choice',
+  question:'さいごの マスが 正しいのは どっち？',
+  choices:[
+    { manuscript:{ cols:8, merge:false, rows:['「ありがとう。」'] } },
+    { manuscript:{ cols:8, rows:['「ありがとう。」'] } }
+  ],
+  answer:1
+},
+{
+  id:'RULE-205', world:'w3', type:'rule', category:'kaiwa',
+  skill:'かい話文の あとの文', difficulty:2,
+  title:'かい話文の あとは 行を かえて 一マス あける',
+  childExplanation:'かい話文が おわったら、つづきの 文は また 行を かえて、一マス あけて 書きます。作文が とても 読みやすく なりますよ。',
+  correctExample:'「おはよう。」\n　ぼくも手をふりました。',
+  wrongExample:'「おはよう。」ぼくも手をふりました。',
+  hint:'とじかっこの あとに、そのまま つづきを 書いて いないかな？',
+  questionType:'choice',
+  question:'かい話文の あとの つづきかたが 正しいのは どっち？',
+  choices:[
+    { manuscript:{ cols:9, rows:['「おはよう。」ぼ','くも手をふりまし','た。'] } },
+    { manuscript:{ cols:9, rows:['「おはよう。」','　ぼくも手をふり','ました。'] } }
+  ],
+  answer:1
+},
+{
+  id:'RULE-206', world:'w3', type:'rule', category:'kaiwa',
+  skill:'とじかっこの わすれ', difficulty:2,
+  title:'とじかっこを わすれない',
+  childExplanation:'かい話文には、はじめの「 と おわりの 」が セットで いります。かたほうだけでは、どこまで 話したのか 分かりませんね。',
+  correctExample:'　弟が「見て見て。」と言いました。',
+  wrongExample:'　弟が「見て見てと言いました。',
+  hint:'はじめの「 は あるね。おわりの しるしは どうかな？',
+  questionType:'choice',
+  question:'この 作文、どこが おかしい？',
+  manuscript:{ cols:9, rows:['　弟が「見て見て','と言いました。'] },
+  choices:[
+    { text:'とじかっこ「」」が ぬけている' },
+    { text:'「、」が 足りない' },
+    { text:'さいしょの 一マス空けが ない' }
+  ],
+  answer:0
+},
+{
+  id:'RULE-207', world:'w3', type:'school_rule', category:'kaiwa',
+  skill:'「 の ばしょ', difficulty:2,
+  title:'かい話文の「 は 行の いちばん上から',
+  childExplanation:'だんらくの さいしょは 一マス あけますが、かい話文の「 は 一マス あけずに、行の いちばん上の マスから 書きます。',
+  correctExample:'「おはよう。」 ← 行の 上から',
+  wrongExample:'　「おはよう。」 ← 一マス あけて しまった',
+  hint:'かい話文だけは、一マス あけずに 上から 書くよ。',
+  questionType:'ox',
+  question:'これは 正しい？',
+  statement:'かい話文の 「 は、行の いちばん上の マスから 書く。',
+  answer:true
+},
+
+/* ===================== WORLD 4 文しょうロード ===================== */
+{
+  id:'RULE-301', world:'w4', type:'skill', category:'bun',
+  skill:'主語と述語', difficulty:1,
+  title:'「だれが」を 書くと 分かりやすい',
+  childExplanation:'「だれが」「どうした」が そろっていると、読む人に よく つたわります。「ぼくは」「わたしは」を 入れて みましょう。',
+  correctExample:'ぼくは、公園でサッカーをしました。',
+  wrongExample:'公園でサッカーをしました。',
+  hint:'サッカーを したのは だれかな？ それが 書いてあると 分かりやすいね。',
+  questionType:'choice',
+  question:'「だれが したのか」が よく 分かるのは どっち？',
+  choices:[
+    { text:'公園で サッカーを しました。' },
+    { text:'ぼくは、公園で サッカーを しました。' }
+  ],
+  answer:1
+},
+{
+  id:'RULE-302', world:'w4', type:'skill', category:'bun',
+  skill:'一文の 長さ', difficulty:2,
+  title:'一つの文を 長くしすぎない',
+  childExplanation:'「〜て、〜て、〜て」と つづけると、長すぎて 分かりにくく なります。「。」で 切って、みじかい文に 分けましょう。',
+  correctExample:'あさおきて、ごはんを食べました。学校へ行って、サッカーをしました。とてもたのしかったです。',
+  wrongExample:'あさおきて、ごはんを食べて、学校へ行って、サッカーをして、たのしかったです。',
+  hint:'「〜て、〜て」が つづいて いないかな？「。」で 切って みよう。',
+  questionType:'choice',
+  question:'読みやすいのは どっち？',
+  choices:[
+    { text:'あさおきて、ごはんを食べて、学校へ行って、サッカーをして、たのしかったです。' },
+    { text:'あさおきて、ごはんを食べました。学校へ行って、サッカーをしました。とてもたのしかったです。' }
+  ],
+  answer:1
+},
+{
+  id:'RULE-303', world:'w4', type:'skill', category:'bun',
+  skill:'出来事の じゅんばん', difficulty:2,
+  title:'あった じゅんばんに 書く',
+  childExplanation:'作文は、あった じゅんばんに 書くと 分かりやすく なります。「あさ→ひる→よる」の ように 時間で ならべましょう。',
+  correctExample:'あさ、はやくおきました。学校で走りました。夜、ぐっすりねました。',
+  wrongExample:'夜、ぐっすりねました。あさ、はやくおきました。',
+  hint:'あさ・ひる・よる、どれが さいしょかな？',
+  questionType:'order',
+  question:'あった じゅんばんに タップして ならべよう。',
+  items:['学校で 走りました。','あさ、はやく おきました。','夜、ぐっすり ねました。'],
+  answer:[1,0,2]
+},
+{
+  id:'RULE-304', world:'w4', type:'skill', category:'bun',
+  skill:'「そして」', difficulty:2,
+  title:'「そして」は ならべる・つけ足す ときに つかう',
+  childExplanation:'「そして」は、ならべたり、あとから つけ足したり する ときに つかいます。',
+  correctExample:'妹は五さいです。そして、とても元気です。',
+  wrongExample:'妹は五さいです。それから、とても元気です。',
+  hint:'「つけ足す」のは どちらの ことばかな？',
+  questionType:'choice',
+  question:'あてはまるのは どっち？　「妹は 五さいです。◯◯◯、とても 元気です。」',
+  choices:[ { text:'そして' }, { text:'それから' } ],
+  answer:0
+},
+{
+  id:'RULE-305', world:'w4', type:'skill', category:'bun',
+  skill:'「それから」', difficulty:2,
+  title:'「それから」は つぎに おきた ことに つかう',
+  childExplanation:'「それから」は、「つぎに」という いみです。時間の じゅんばんを あらわす ときに つかいます。',
+  correctExample:'先にしゅくだいをしました。それから、公園へ行きました。',
+  wrongExample:'先にしゅくだいをしました。そして、公園へ行きました。',
+  hint:'「つぎに」と いいかえられる ことばは どっちかな？',
+  questionType:'choice',
+  question:'あてはまるのは どっち？　「先に しゅくだいを しました。◯◯◯◯、公園へ 行きました。」',
+  choices:[ { text:'そして' }, { text:'それから' } ],
+  answer:1
+},
+{
+  id:'RULE-306', world:'w4', type:'skill', category:'bun',
+  skill:'つなぎことばの つかい分け', difficulty:2,
+  title:'「それから」は じゅんばんの ことば',
+  childExplanation:'「そして」は ならべる・つけ足す とき。「それから」は つぎに おきた ことを 書く とき。おぼえて おきましょう。',
+  correctExample:'ごはんを食べました。それから、はをみがきました。',
+  wrongExample:'（じゅんばんが ないのに つかう）',
+  hint:'「つぎに おきた こと」を あらわす ことばだよ。',
+  questionType:'ox',
+  question:'これは 正しい？',
+  statement:'「それから」は、つぎに おきた ことを 書くときに つかう。',
+  answer:true
+},
+{
+  id:'RULE-307', world:'w4', type:'school_rule', category:'bun',
+  skill:'だんらくを 分ける', difficulty:2,
+  title:'話が かわったら だんらくを 分ける',
+  childExplanation:'話が かわる ところで 行を かえて、一マス あけて 書きはじめます。これが「だんらくを 分ける」ですよ。',
+  correctExample:'　あさ、公園へ行きました。（…）\n　ひるからは、家で本をよみました。',
+  wrongExample:'（ぜんぶ つづけて 書く）',
+  hint:'あたらしい 話に なったら、行を かえて 一マス あけよう。',
+  questionType:'ox',
+  question:'これは 正しい？',
+  statement:'話が かわったら、行を かえて 一マス あけて 書く。',
+  answer:true
+},
+{
+  id:'RULE-308', world:'w4', type:'skill', category:'bun',
+  skill:'出来事の じゅんばん（4つ）', difficulty:3,
+  title:'一日の できごとを じゅんばんに',
+  childExplanation:'できごとを 時間の じゅんばんに ならべると、読む人が 目に うかべやすく なりますよ。',
+  correctExample:'あさ、学校にあつまりました。バスにのりました。山の上でおべんとうを食べました。家にかえって、しゃしんを見ました。',
+  wrongExample:'（じゅんばんが ばらばら）',
+  hint:'まずは 学校に あつまる ところからだね。',
+  questionType:'order',
+  question:'えん足の 出来事を じゅんばんに ならべよう。',
+  items:['バスに のりました。','山の上で おべんとうを 食べました。','あさ、学校に あつまりました。','家に かえって、しゃしんを 見ました。'],
+  answer:[2,0,1,3]
+},
+
+/* ===================== WORLD 5 マチガエール魔王城 ===================== */
+{
+  id:'RULE-401', world:'w5', type:'skill', category:'kuwashiku',
+  skill:'出来事を くわしく', difficulty:2,
+  title:'書いたら、もう一歩 くわしく',
+  childExplanation:'出来事を 書いたら、そこで おわりに しないで「もう一歩！」。大きさ・色・数などを 足すと、読む人の 目に うかびますよ。答えは 一つでは ありません。',
+  correctExample:'大きなどんぐりがありました。ぼくの親ゆびくらいの大きさでした。',
+  wrongExample:'どんぐりがありました。',
+  hint:'どんな どんぐり だったのかな？ 大きさや 色を 思い出して みよう。',
+  questionType:'rewrite',
+  question:'「どんぐりが ありました。」の つぎに 書くと よいのは？（いくつも 正かい）',
+  choices:[
+    { text:'大きな どんぐりが ありました。' },
+    { text:'どんぐりです。' },
+    { text:'ぼくの 親ゆびくらいの 大きさでした。' }
+  ],
+  answers:[0,2], anyOf:true
+},
+{
+  id:'RULE-402', world:'w5', type:'skill', category:'kuwashiku',
+  skill:'気もちを 書く', difficulty:2,
+  title:'そのときの 気もちを 書く',
+  childExplanation:'出来事の あとに 気もちを 書くと、作文が ぐっと よくなります。うれしかった・どきどきした・びっくりした…いろいろな 気もちが ありますね。',
+  correctExample:'はじめて一りん車にのれました。うれしかったです。',
+  wrongExample:'はじめて一りん車にのれました。',
+  hint:'のれた とき、心の 中は どんな 気もち だったかな？',
+  questionType:'choice',
+  question:'「はじめて 一りん車に のれました。」の あとに あう 気もちは？（いくつも 正かい）',
+  choices:[
+    { text:'うれしかったです。' },
+    { text:'どきどきしました。' },
+    { text:'ねむかったです。' },
+    { text:'おなかが すきました。' }
+  ],
+  answers:[0,1], anyOf:true
+},
+{
+  id:'RULE-403', world:'w5', type:'skill', category:'kuwashiku',
+  skill:'気もちの りゆう', difficulty:2,
+  title:'「どうして そう思ったの？」を 書く',
+  childExplanation:'気もちを 書いたら、つぎは「どうして そう思ったのか」。りゆうが あると、読む人に 気もちが つたわりますよ。',
+  correctExample:'うれしかったです。どうしてかというと、はじめてさかあがりができたからです。',
+  wrongExample:'うれしかったです。',
+  hint:'「どうしてかというと…」で つづけて みよう。',
+  questionType:'choice',
+  question:'「うれしかったです。」の つぎに 書くと よいのは？',
+  choices:[
+    { text:'どうしてかというと、はじめて さかあがりが できたからです。' },
+    { text:'うれしかったです。' },
+    { text:'おわり。' }
+  ],
+  answer:0
+},
+{
+  id:'RULE-404', world:'w5', type:'skill', category:'kuwashiku',
+  skill:'五かん（音・見た目）', difficulty:2,
+  title:'どんな音？ 何が 見えた？',
+  childExplanation:'「どんな音だった？」「何が 見えた？」を 思い出して 書くと、その場に いるような 作文に なります。',
+  correctExample:'ドーンと大きな音がしました。空が赤く光りました。',
+  wrongExample:'花火を見ました。',
+  hint:'耳で 聞いた音、目で 見た色を 思い出して みよう。',
+  questionType:'rewrite',
+  question:'「花火を 見ました。」を くわしく するには？（いくつも 正かい）',
+  choices:[
+    { text:'ドーンと 大きな音が しました。' },
+    { text:'空が 赤く 光りました。' },
+    { text:'花火でした。' },
+    { text:'すごかったです。' }
+  ],
+  answers:[0,1], anyOf:true
+},
+{
+  id:'RULE-405', world:'w5', type:'skill', category:'kuwashiku',
+  skill:'五かん（におい・さわる）', difficulty:2,
+  title:'どんな におい？ さわると どんな かんじ？',
+  childExplanation:'においや、さわった かんじも 作文に できます。目で 見た ことだけで なく、鼻や 手で かんじた ことも 書いて みましょう。',
+  correctExample:'やきたてのパンの あまいにおいがしました。',
+  wrongExample:'パンやさんに入りました。',
+  hint:'パンやさんに 入った とき、どんな においが したかな？',
+  questionType:'choice',
+  question:'「パンやさんに 入りました。」を くわしく するのは どれ？',
+  choices:[
+    { text:'やきたてのパンの あまい においが しました。' },
+    { text:'パンやさんでした。' },
+    { text:'すごかったです。' }
+  ],
+  answer:0
+},
+{
+  id:'RULE-406', world:'w5', type:'skill', category:'kuwashiku',
+  skill:'同じことばの くりかえし', difficulty:3,
+  title:'同じことばが つづいたら 書きかえる',
+  childExplanation:'同じ ことばが 何かいも 出てくると、よみにくく なります。ほかの ことばに かえたり、くわしく 書きかえたり しましょう。',
+  correctExample:'たのしかったです。とくに、リレーで一いになれたときは うれしくてとびはねました。',
+  wrongExample:'たのしかったです。たのしかったです。たのしかったです。',
+  hint:'ことばを けすのでは なくて、ちがう 書きかたに かえて みよう。',
+  questionType:'choice',
+  question:'「たのしかったです。」が 3かいも つづいて いるよ。どうする？',
+  choices:[
+    { text:'ちがう ことばや、くわしい 書きかたに かえる。' },
+    { text:'ぜんぶ けして しまう。' },
+    { text:'もっと ふやして 5かいに する。' }
+  ],
+  answer:0
+},
+{
+  id:'RULE-407', world:'w5', type:'school_rule', category:'kuwashiku',
+  skill:'読みかえし', difficulty:1,
+  title:'書きおわったら 読みかえす',
+  childExplanation:'書きおわったら、さいごに もう一かい 読みかえします。一マス空け・「。」・は へ を。じぶんで 見つけられたら、それは すごい 力ですよ！',
+  correctExample:'書きおわったら 声に 出して 読みかえす。',
+  wrongExample:'書いたら そのまま 出して しまう。',
+  hint:'じぶんで 見なおすと、まちがいが 見つかるよ。',
+  questionType:'ox',
+  question:'これは 正しい？',
+  statement:'作文を 書いたら、さいごに 読みかえして たしかめる。',
+  answer:true
+},
+{
+  id:'RULE-408', world:'w5', type:'skill', category:'kuwashiku',
+  skill:'「すごかった」の 具体化', difficulty:3, boss:true,
+  title:'「すごかった」の 中みを 書く',
+  childExplanation:'「すごかった」は いい ことばです。つかっては いけない わけでは ありません。でも、そのあとに「何が どう すごかったのか」を 書くと、読む人にも すごさが つたわりますよ。',
+  correctExample:'花火が空いっぱいに広がって、びっくりしました。ドーンと大きな音がして、体にひびきました。',
+  wrongExample:'花火がすごかったです。',
+  hint:'「何が」「どう」すごかったのかな？ 大きさ・音・色・はやさを 思い出そう。',
+  questionType:'rewrite',
+  question:'魔王「花火が すごかったです。だけで じゅうぶんなのだ！」…もっと つたわるのは どれ？（いくつも 正かい）',
+  choices:[
+    { text:'花火が 空いっぱいに 広がって、びっくりしました。' },
+    { text:'花火が すごくて、すごくて、すごかったです。' },
+    { text:'ドーンと 大きな音が して、体に ひびきました。' },
+    { text:'花火は すごかったです。' }
+  ],
+  answers:[0,2], anyOf:true
+}
+
+];
+
+/* =========================================================
+   お手本の げんこう用紙（たて書き 20文字 × 10行）
+   だい名・名前・一マス空け・句読点・かい話文が ぜんぶ 入って います
+   ========================================================= */
+const SAMPLE_GENKOU = {
+  cols: 20,
+  minRows: 10,
+  rows: [
+    '　　　うみへ行った日',
+    '　　　　　　　　　　　　　　山田はなこ',
+    '　きのう、家ぞくでうみへ行きました。',
+    '青い魚が、目の前をすいっと泳ぎました。',
+    '「きれいだね。」',
+    '　わたしは、お母さんに言いました。',
+    '　うみの水は、しょっぱかったです。',
+    'また行きたいと思いました。'
+  ]
+};
+
+/* =========================================================
+   作文チェックモード（じぶんで 見なおす チェックリスト）
+   ruleId を 書いておくと、はかせの せつめいが 見られます。
+   ========================================================= */
+const CHECK_ITEMS = [
+  { id:'c1', text:'だい名を 書いた？',                 ruleId:'RULE-001' },
+  { id:'c2', text:'名前を 書いた？',                   ruleId:'RULE-002' },
+  { id:'c3', text:'さいしょを 一マス あけた？',         ruleId:'RULE-012' },
+  { id:'c4', text:'文の おわりに「。」を つけた？',      ruleId:'RULE-007' },
+  { id:'c5', text:'「は」「へ」「を」は 正しい？',        ruleId:'RULE-108' },
+  { id:'c6', text:'かい話文の「　」は 正しい？',         ruleId:'RULE-203' },
+  { id:'c7', text:'出来事の あとを くわしく 書いた？',   ruleId:'RULE-401' },
+  { id:'c8', text:'気もちを 書いた？',                 ruleId:'RULE-402' },
+  { id:'c9', text:'「どうして？」も 書いた？',           ruleId:'RULE-403' },
+  { id:'c10',text:'「すごかった」だけで おわって いない？', ruleId:'RULE-408' }
+];
+
+'use strict';
+/* =========================================================
+   作文マスター・クエスト  script.js  ―― ゲームのしくみ
+   ---------------------------------------------------------
+   ・もんだいは data.js に あります（ここは 書きかえなくて OK）
+   ・つくり： セーブ → がめん → げんこう用紙 → もんだい → バトル → きろく
+   ========================================================= */
+
+/* ========== 0. ちいさな どうぐ ========== */
+const $  = (id) => document.getElementById(id);
+const ce = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+
+/* ========== 1. セーブデータ（LocalStorage） ========== */
+const SAVE_KEY = 'sakubun-quest-v1';
+
+function blankSave() {
+  return {
+    version: 1,
+    power: 0,          // 作文パワー
+    worlds: {},        // w1:{ cleared:true, stars:3, first:6, total:7 }
+    categories: {},    // genkou:{ first:5, total:7 }
+    check: {},         // 作文チェックの チェック じょうたい
+    sound: true
+  };
+}
+let save = loadSave();
+
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) return Object.assign(blankSave(), JSON.parse(raw));
+  } catch (e) { /* つかえない ときは 何もしない */ }
+  return blankSave();
+}
+function persist() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {}
+}
+function addPower(n) {
+  save.power += n;
+  $('power-num').textContent = save.power;
+  persist();
+}
+/* カテゴリ（身につき度）の きろく */
+function bumpCategory(cat, first) {
+  const c = save.categories[cat] || (save.categories[cat] = { first: 0, total: 0 });
+  c.total++;
+  if (first) c.first++;
+  persist();
+}
+/* 星の 計算：一回で 正かい できた わりあい */
+function starsFor(first, total) {
+  if (!total) return 0;
+  const r = first / total;
+  if (r >= 0.95) return 5;
+  if (r >= 0.8)  return 4;
+  if (r >= 0.6)  return 3;
+  if (r >= 0.4)  return 2;
+  return 1;
+}
+const starStr = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+const totalStars = () => WORLDS.reduce((s, w) => s + ((save.worlds[w.id] || {}).stars || 0), 0);
+
+/* ========== 2. 音（がいぶファイル なしの かんたんな音） ========== */
+const Sound = {
+  ctx: null,
+  init() {
+    if (this.ctx) return;
+    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  },
+  tone(freq, t0, dur, type, vol) {
+    if (!save.sound || !this.ctx) return;
+    const ctx = this.ctx, now = ctx.currentTime + t0;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(vol || 0.12, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(now); o.stop(now + dur + 0.03);
+  },
+  tap()  { this.tone(720, 0, 0.08, 'sine', 0.07); },
+  ok()   { this.tone(880, 0, 0.12); this.tone(1320, 0.09, 0.2); },
+  ng()   { this.tone(320, 0, 0.16, 'triangle', 0.09); },
+  win()  { [523, 659, 784, 1046].forEach((f, i) => this.tone(f, i * 0.12, 0.32)); }
+};
+
+/* ========== 3. がめんの きりかえ ========== */
+const SCREENS = ['title', 'map', 'battle', 'result', 'check', 'record'];
+let current = 'title';
+
+function go(name) {
+  SCREENS.forEach(s => $('screen-' + s).classList.toggle('is-active', s === name));
+  current = name;
+  $('btn-back').classList.toggle('is-on', name !== 'title');
+  window.scrollTo(0, 0);
+  if (name === 'map')    renderMap();
+  if (name === 'check')  renderCheck();
+  if (name === 'record') renderRecord();
+  if (name !== 'battle') { document.body.style.removeProperty('--w'); hideVerdict(); }
+  requestAnimationFrame(fitAllGenkou);
+}
+function back() {
+  if (current === 'battle') { hideVerdict(); go('map'); return; }
+  if (current === 'result') { go('map'); return; }
+  go('title');
+}
+
+/* ========== 4. げんこう用紙 びょうが ========== */
+const RE_PUNCT = /[、。]/;
+const RE_SMALL = /[ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ]/;
+
+/* 1行の 文字を マスに 分ける
+   ・行の さいごに あふれた「、」「。」は 前の字と 同じマスへ
+   ・「。」の あとの「」」も 同じマスへ                        */
+function rowToCells(row, cols, merge) {
+  const cells = [];
+  for (const ch of row) {
+    const last = cells[cells.length - 1];
+    if (merge !== false && last) {
+      if (ch === '」' && !last.sub && RE_PUNCT.test(last.main)) { last.sub = ch; last.kind = 'pair'; continue; }
+      if (RE_PUNCT.test(ch) && !last.sub && cells.length >= cols) { last.sub = ch; last.kind = 'tail'; continue; }
+    }
+    cells.push({ main: ch });
+  }
+  return cells;
+}
+function cellEl(c, r, ci, opts) {
+  const d = ce('div', 'gcell');
+  d.dataset.r = r; d.dataset.c = ci;
+  const m = c.main || '';
+  if (m && m !== '　') {
+    const s = ce('span', 'gc-main');
+    s.textContent = m;
+    d.appendChild(s);
+    if (RE_PUNCT.test(m)) d.classList.add('k-punct');
+    else if (RE_SMALL.test(m)) d.classList.add('k-small');
+  }
+  if (c.sub) {
+    const s2 = ce('span', 'gc-sub');
+    s2.textContent = c.sub;
+    d.appendChild(s2);
+  }
+  if (c.kind === 'pair') d.classList.add('k-pair');
+  if (c.kind === 'tail') d.classList.add('k-tail');
+  if (opts.tapable) d.classList.add('tapable');
+  return d;
+}
+/* げんこう用紙を つくる。opts.onCell(r,c,el) で マスの タップを うけとる */
+function genkouEl(spec, opts) {
+  opts = opts || {};
+  const cols = spec.cols || 20;
+  const rows = spec.rows || [];
+  const nRows = Math.max(spec.minRows || 0, rows.length);
+  const g = ce('div', 'genkou');
+  g.dataset.chars = cols;        // 1行の 文字数（たてに ならぶ マスの数）
+  g.dataset.lines = nRows;       // 行の数（右から 左へ ならぶ）
+  g.style.setProperty('--chars', cols);
+  g.style.setProperty('--lines', nRows);
+  for (let r = 0; r < nRows; r++) {
+    const cells = rowToCells(rows[r] || '', cols, spec.merge);
+    if (cells.length > cols) cells.length = cols;   // 書きすぎ ぼうし
+    while (cells.length < cols) cells.push({ main: '' });
+    cells.forEach((c, ci) => g.appendChild(cellEl(c, r, ci, opts)));
+  }
+  if (opts.onCell) {
+    g.addEventListener('click', (e) => {
+      const t = e.target.closest ? e.target.closest('.gcell') : null;
+      if (t && g.contains(t)) opts.onCell(+t.dataset.r, +t.dataset.c, t);
+    });
+  }
+  return g;
+}
+function genkouWrap(spec, opts) {
+  opts = opts || {};
+  const w = ce('div', 'genkou-wrap' + (opts.big ? ' is-big' : '') + (opts.sample ? ' is-sample' : ''));
+  w.appendChild(genkouEl(spec, opts));
+  if (!opts.label) return w;
+  /* 「お手本」などの 見出しを 上に つける */
+  const box = ce('div', 'genkou-box');
+  const lb = ce('p', 'genkou-label');
+  lb.textContent = opts.label;
+  box.appendChild(lb);
+  box.appendChild(w);
+  return box;
+}
+/* マスの 大きさを 計算する
+   たて書きなので「よこ＝行の数」「たて＝1行の文字数」で 大きさが きまる。
+   画面から はみ出さないように、たて・よこ 両方から 小さいほうを えらぶ。 */
+function fitAllGenkou() {
+  const vh = window.innerHeight || 800;
+  document.querySelectorAll('.genkou').forEach(g => {
+    const chars = +g.dataset.chars || 20;
+    const lines = +g.dataset.lines || 1;
+    const wrap = g.parentElement;
+    const availW = ((wrap ? wrap.clientWidth : g.clientWidth) || 300) - 16;
+    let maxH, maxCell;
+    if (wrap && wrap.classList.contains('is-sample')) { maxH = Math.min(vh * 0.62, 640); maxCell = 34; }
+    else if (g.closest('.ans'))                       { maxH = Math.min(vh * 0.34, 340); maxCell = 40; }
+    else if (wrap && wrap.classList.contains('is-big')){ maxH = Math.min(vh * 0.40, 380); maxCell = 46; }
+    else                                              { maxH = Math.min(vh * 0.40, 380); maxCell = 44; }
+    const cell = Math.max(14, Math.min(maxCell, availW / lines, maxH / chars));
+    g.style.setProperty('--cell', (Math.floor(cell * 10) / 10) + 'px');
+  });
+}
+let fitTimer = null;
+window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitAllGenkou, 80); });
+window.addEventListener('orientationchange', () => setTimeout(fitAllGenkou, 250));
+
+/* ========== 5. ワールドマップ ========== */
+function renderMap() {
+  const list = $('world-list');
+  list.innerHTML = '';
+  WORLDS.forEach(w => {
+    const rec = save.worlds[w.id] || {};
+    const card = ce('button', 'world-card');
+    card.style.setProperty('--w', w.color);
+    card.innerHTML =
+      '<div class="wc-emoji">' + w.emoji + '</div>' +
+      '<div class="wc-main">' +
+        '<span class="wc-no">WORLD ' + w.no + '</span>' +
+        '<div class="wc-name">' + w.name + '</div>' +
+        '<div class="wc-theme">' + w.theme + '</div>' +
+        '<div class="wc-stars">' + starStr(rec.stars || 0) + '</div>' +
+      '</div>' +
+      (rec.cleared ? '<span class="wc-clear">クリア</span>' : '');
+    card.addEventListener('click', () => { Sound.tap(); startBattle(w.id); });
+    list.appendChild(card);
+  });
+  const t = totalStars();
+  $('map-talk').textContent = t
+    ? 'いま 星が ' + t + 'こ！ つぎは どのステージに 行く？'
+    : 'どのステージに 行くか えらんでね。1から じゅんばんが おすすめです。';
+}
+
+/* ========== 6. バトル ========== */
+const battle = { world: null, qs: [], idx: 0, hp: 0, maxHp: 0, dmg: 10, first: 0, tries: 0, locked: false };
+
+function startBattle(worldId) {
+  const w = WORLDS.find(x => x.id === worldId);
+  const qs = RULES.filter(r => r.world === worldId);
+  if (!w || !qs.length) return;
+  battle.world = w;
+  battle.qs = qs;
+  battle.idx = 0;
+  battle.first = 0;
+  battle.tries = 0;
+  battle.dmg = 10;
+  battle.maxHp = qs.length * battle.dmg;
+  battle.hp = battle.maxHp;
+  document.body.style.setProperty('--w', w.color);
+  $('enemy-face').textContent = w.enemy.emoji;
+  $('enemy-name').textContent = (w.boss ? '👑 ' : '') + w.enemy.name;
+  $('hp-fill').style.width = '100%';
+  hideVerdict();
+  go('battle');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = battle.qs[battle.idx];
+  battle.tries = 0;
+  battle.locked = false;
+  $('q-count').textContent = (battle.idx + 1) + 'もん目 / ' + battle.qs.length + 'もん';
+  setTalk(q.question);
+  const body = $('q-body');
+  const ans = $('answers');
+  body.innerHTML = '';
+  ans.innerHTML = '';
+  ans.className = 'answers';
+
+  /* 見せる 作文（あれば） */
+  if (q.statement) {
+    const s = ce('div', 'statement');
+    s.textContent = q.statement;
+    body.appendChild(s);
+  }
+  if (q.manuscript && q.questionType !== 'find') {
+    body.appendChild(genkouWrap(q.manuscript, { big: true, label: q.manuscriptLabel }));
+  }
+
+  (RENDER[q.questionType] || RENDER.choice)(q, body, ans);
+  requestAnimationFrame(fitAllGenkou);
+}
+function setTalk(text) { $('q-text').textContent = text; }
+
+/* ========== 7. もんだいの かたち べつ びょうが ========== */
+const MARKS = ['A', 'B', 'C', 'D', 'E'];
+const RENDER = {
+
+  /* ①○×もんだい */
+  ox(q, body, ans) {
+    const wrap = ce('div', 'ox-wrap');
+    [['○', true, 'o'], ['×', false, 'x']].forEach(([label, val, cls]) => {
+      const b = ce('button', 'ox ' + cls);
+      b.textContent = label;
+      b.addEventListener('click', () => {
+        if (battle.locked) return;
+        if (val === q.answer) { judge(true, q); }
+        else { b.classList.add('is-ng'); b.disabled = true; judge(false, q); }
+      });
+      wrap.appendChild(b);
+    });
+    ans.appendChild(wrap);
+  },
+
+  /* ②二たく・④えらぶ・⑥書きかえ（せんたく式） */
+  choice(q, body, ans) {
+    const oks = q.answers ? q.answers.slice() : [q.answer];
+    const hasGenkou = q.choices.some(c => c.manuscript);
+    if (hasGenkou) ans.className = 'answers two-col';
+    q.choices.forEach((c, i) => {
+      const b = ce('button', 'ans' + (c.manuscript ? ' ans-genkou' : ''));
+      const mark = ce('span', 'ans-mark');
+      mark.textContent = MARKS[i];
+      b.appendChild(mark);
+      if (c.manuscript) b.appendChild(genkouWrap(c.manuscript));
+      else { const t = ce('span'); t.textContent = c.text; b.appendChild(t); }
+      b.addEventListener('click', () => {
+        if (battle.locked) return;
+        if (oks.indexOf(i) >= 0) { b.classList.add('is-ok'); judge(true, q); }
+        else { b.classList.add('is-ng', 'wrong-shake'); b.disabled = true; judge(false, q); }
+      });
+      ans.appendChild(b);
+    });
+  },
+  rewrite(q, body, ans) { RENDER.choice(q, body, ans); },
+
+  /* ③まちがいさがし（マスを タップ） */
+  find(q, body, ans) {
+    const need = q.answers.map(a => a.join(','));
+    const found = {};
+    const wrap = genkouWrap(q.manuscript, {
+      big: true,
+      tapable: true,
+      onCell: (r, c, el) => {
+        if (battle.locked) return;
+        const key = r + ',' + c;
+        if (found[key]) return;
+        if (need.indexOf(key) >= 0) {
+          found[key] = true;
+          el.classList.add('hit');
+          Sound.tap();
+          const rest = need.length - Object.keys(found).length;
+          if (rest === 0) judge(true, q);
+          else flash('あと ' + rest + 'こ！', '');
+        } else {
+          el.classList.add('miss');
+          setTimeout(() => el.classList.remove('miss'), 420);
+          judge(false, q);
+        }
+      }
+    });
+    body.appendChild(wrap);
+    const tip = ce('p', 'genkou-label');
+    tip.textContent = 'マスを タップして えらぼう（右の行から 読むよ）';
+    body.insertBefore(tip, wrap);
+  },
+
+  /* ④正しい ばしょを えらぶ（「、」を どこに 入れる？） */
+  slot(q, body, ans) {
+    const oks = q.answers ? q.answers.slice() : [q.answer];
+    const line = ce('div', 'slot-sentence');
+    q.parts.forEach((p, i) => {
+      const sp = ce('span');
+      sp.textContent = p;
+      line.appendChild(sp);
+      if (i < q.parts.length - 1) {
+        const b = ce('button', 'slot-btn');
+        b.textContent = '▽';
+        b.addEventListener('click', () => {
+          if (battle.locked) return;
+          if (oks.indexOf(i) >= 0) {
+            b.classList.add('is-ok');
+            b.textContent = q.insert || '、';
+            judge(true, q);
+          } else {
+            b.classList.add('is-ng');
+            b.disabled = true;
+            judge(false, q);
+          }
+        });
+        line.appendChild(b);
+      }
+    });
+    ans.appendChild(line);
+  },
+
+  /* ⑤ならべかえ */
+  order(q, body, ans) {
+    const picked = [];
+    const slots = ce('div', 'order-slots');
+    const btns = [];
+    const draw = () => {
+      slots.innerHTML = '';
+      for (let i = 0; i < q.items.length; i++) {
+        const s = ce('div', 'order-slot' + (picked[i] !== undefined ? ' is-filled' : ''));
+        s.innerHTML = '<span class="order-num">' + (i + 1) + 'ばんめ</span>' +
+                      (picked[i] !== undefined ? q.items[picked[i]] : '');
+        slots.appendChild(s);
+      }
+    };
+    q.items.forEach((text, i) => {
+      const b = ce('button', 'ans');
+      const mark = ce('span', 'ans-mark');
+      mark.textContent = MARKS[i];
+      b.appendChild(mark);
+      const t = ce('span'); t.textContent = text; b.appendChild(t);
+      b.addEventListener('click', () => {
+        if (battle.locked || b.classList.contains('is-picked')) return;
+        b.classList.add('is-picked');
+        picked.push(i);
+        Sound.tap();
+        draw();
+        if (picked.length === q.items.length) {
+          const ok = picked.every((v, k) => v === q.answer[k]);
+          if (ok) judge(true, q);
+          else {
+            judge(false, q);
+            picked.length = 0;
+            btns.forEach(x => x.classList.remove('is-picked'));
+            draw();
+          }
+        }
+      });
+      btns.push(b);
+      ans.appendChild(b);
+    });
+    draw();
+    body.appendChild(slots);
+  }
+};
+
+/* ========== 8. はんてい と えんしゅつ ========== */
+function judge(ok, q) {
+  if (battle.locked) return;
+  if (!ok) {
+    battle.tries++;
+    Sound.ng();
+    flash('おしい！', 'ng');
+    setTalk('おしい！ ' + q.hint);
+    return;
+  }
+  battle.locked = true;
+  const first = battle.tries === 0;
+  if (first) battle.first++;
+  bumpCategory(q.category, first);
+  addPower(1);
+  Sound.ok();
+  flash(first ? 'せいかい！' : 'できた！', '');
+  hitEnemy(battle.dmg);
+  setTimeout(() => showVerdict(q, first), 620);
+}
+
+function hitEnemy(dmg) {
+  battle.hp = clamp(battle.hp - dmg, 0, battle.maxHp);
+  $('hp-fill').style.width = (battle.hp / battle.maxHp * 100) + '%';
+  const face = $('enemy-face');
+  face.classList.remove('is-hit');
+  void face.offsetWidth;
+  face.classList.add('is-hit');
+  const r = face.getBoundingClientRect();
+  const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  /* ダメージの すうじ */
+  const d = ce('div', 'dmg');
+  d.textContent = '-' + dmg;
+  d.style.left = cx + 'px';
+  d.style.top = cy + 'px';
+  $('fx-layer').appendChild(d);
+  setTimeout(() => d.remove(), 1000);
+  /* キラキラ */
+  for (let i = 0; i < 10; i++) {
+    const s = ce('div', 'spark');
+    s.textContent = ['✨', '⭐', '💫'][i % 3];
+    s.style.left = (cx - 12 + (Math.random() * 60 - 30)) + 'px';
+    s.style.top  = (cy - 12 + (Math.random() * 40 - 20)) + 'px';
+    s.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+    s.style.setProperty('--dy', (-40 - Math.random() * 90) + 'px');
+    s.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
+    s.style.animationDelay = (i * 0.03) + 's';
+    $('fx-layer').appendChild(s);
+    setTimeout(() => s.remove(), 1200);
+  }
+}
+
+let flashTimer = null;
+function flash(text, cls) {
+  const f = $('flash');
+  $('flash-text').textContent = text;
+  f.className = 'flash' + (cls ? ' ' + cls : '');
+  f.hidden = false;
+  void f.offsetWidth;
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => { f.hidden = true; }, 900);
+}
+
+/* こたえ合わせパネル */
+function showVerdict(q, first) {
+  $('verdict-title').textContent = first ? 'せいかい！' : 'できた！ ナイス。';
+  $('verdict-rule').innerHTML =
+    '<span style="color:var(--ok)">作文パワー +1！　' + battle.dmg + 'ダメージ！</span><br>' +
+    '📘 ' + q.id + '　' + q.title;
+  const cmp = $('verdict-compare');
+  cmp.innerHTML = '';
+  const box = (cls, tag, text) => {
+    const b = ce('div', 'cmp-box ' + cls);
+    const t = ce('div', 'cmp-tag'); t.textContent = tag;
+    const x = ce('div', 'cmp-text'); x.textContent = text;
+    b.appendChild(t); b.appendChild(x);
+    return b;
+  };
+  const grid = ce('div', 'compare');
+  grid.appendChild(box('ng', '✕ こうすると まちがい', q.wrongExample));
+  grid.appendChild(box('ok', '◯ 正しい 書きかた', q.correctExample));
+  cmp.appendChild(grid);
+  $('verdict-exp').textContent = q.childExplanation +
+    (q.anyOf ? '　※ 正かいは 一つだけでは ありません。' : '');
+  $('verdict').hidden = false;
+}
+function hideVerdict() { $('verdict').hidden = true; }
+
+function nextQuestion() {
+  hideVerdict();
+  battle.idx++;
+  if (battle.idx >= battle.qs.length) { endBattle(); return; }
+  renderQuestion();
+}
+
+/* ========== 9. バトルの おわり と けっか ========== */
+function endBattle() {
+  const w = battle.world;
+  const total = battle.qs.length;
+  const stars = starsFor(battle.first, total);
+  const rec = save.worlds[w.id] || (save.worlds[w.id] = { cleared: false, stars: 0, first: 0, total: 0 });
+  rec.cleared = true;
+  rec.stars = Math.max(rec.stars || 0, stars);
+  rec.first = battle.first;
+  rec.total = total;
+  persist();
+  Sound.win();
+
+  const allClear = WORLDS.every(x => (save.worlds[x.id] || {}).cleared);
+  const body = $('result-body');
+  body.innerHTML = '';
+
+  const emo = ce('div', 'result-emoji');
+  emo.textContent = w.boss ? '👑✨' : '🎉';
+  const ttl = ce('div', 'result-title');
+  ttl.textContent = w.boss ? 'マチガエール魔王を たおした！' : w.enemy.name + 'を たおした！';
+  const st = ce('div', 'result-stars');
+  st.textContent = starStr(stars);
+  body.appendChild(emo); body.appendChild(ttl); body.appendChild(st);
+
+  const panel = ce('div', 'result-panel');
+  const row = (a, b) => {
+    const r = ce('div', 'result-row');
+    const x = ce('span'); x.textContent = a;
+    const y = ce('span'); y.textContent = b;
+    r.appendChild(x); r.appendChild(y);
+    return r;
+  };
+  panel.appendChild(row('一回で 正かい', battle.first + ' / ' + total + 'もん'));
+  panel.appendChild(row('もらった 作文パワー', '✨ ' + total));
+  panel.appendChild(row('ぜんぶの 星', '⭐ ' + totalStars() + ' / ' + (WORLDS.length * 5)));
+  body.appendChild(panel);
+
+  const talk = ce('div', 'talk-bar');
+  talk.innerHTML = '<span class="talk-face">🦉</span><p class="talk-text">' +
+    (w.boss
+      ? 'よく やりましたね！「すごかった」の 中みを 書けるように なりましたね。<br>つぎは、じぶんの 作文で ためして みましょう。'
+      : (battle.first === total
+          ? 'ぜんぶ 一回で 正かい！ すばらしい！'
+          : 'まちがいを 見つけられた ことも、りっぱな 力ですよ。')) +
+    '</p>';
+  body.appendChild(talk);
+
+  if (allClear) {
+    const end = ce('div', 'result-panel');
+    end.innerHTML = '<div style="text-align:center;font-weight:900;font-size:18px;line-height:1.9">' +
+      '🏆 ぜんステージ クリア！<br>きみは <b>作文マスター</b> だ！<br>' +
+      '<span style="font-size:14px;font-weight:700">つぎは、じぶんの 作文を「作文チェック」で 見なおして みよう。</span></div>';
+    body.appendChild(end);
+  }
+
+  const btns = ce('div', 'result-btns');
+  const mk = (label, cls, fn) => {
+    const b = ce('button', 'btn' + (cls ? ' ' + cls : ''));
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  };
+  btns.appendChild(mk('▶ べつの ステージへ', 'btn-main', () => go('map')));
+  btns.appendChild(mk('🔁 もう一かい やる', '', () => startBattle(w.id)));
+  btns.appendChild(mk('⭐ きろくを 見る', '', () => go('record')));
+  body.appendChild(btns);
+
+  go('result');
+}
+
+/* ========== 10. 作文チェックモード ========== */
+function renderCheck() {
+  const list = $('check-list');
+  list.innerHTML = '';
+  CHECK_ITEMS.forEach(item => {
+    const rule = RULES.find(r => r.id === item.ruleId);
+    const b = ce('button', 'check-item' + (save.check[item.id] ? ' is-on' : ''));
+    const box = ce('span', 'check-box');
+    box.textContent = '✓';
+    const wrap = ce('span');
+    const t = ce('div'); t.textContent = item.text;
+    wrap.appendChild(t);
+    if (rule) {
+      const tip = ce('div', 'check-tip');
+      tip.textContent = '🦉 ' + rule.title;
+      wrap.appendChild(tip);
+    }
+    b.appendChild(box); b.appendChild(wrap);
+    b.addEventListener('click', () => {
+      save.check[item.id] = !save.check[item.id];
+      b.classList.toggle('is-on', !!save.check[item.id]);
+      persist();
+      Sound.tap();
+      updateCheckMeter();
+      if (CHECK_ITEMS.every(i => save.check[i.id])) {
+        Sound.win();
+        flash('ぜんぶ できた！', '');
+      }
+    });
+    list.appendChild(b);
+  });
+  updateCheckMeter();
+}
+/* お手本の げんこう用紙（20文字×10行）を 出す・かくす */
+function toggleSample() {
+  const box = $('sample-body');
+  const show = box.hidden;
+  if (show && !box.childElementCount) {
+    const label = ce('p', 'genkou-label');
+    label.textContent = 'だい名・名前・一マス空け・かい話文の お手本です';
+    box.appendChild(label);
+    box.appendChild(genkouWrap(SAMPLE_GENKOU, { sample: true }));
+  }
+  box.hidden = !show;
+  $('btn-sample').textContent = show ? '📄 お手本の げんこう用紙を とじる　▲' : '📄 お手本の げんこう用紙を 見る　▼';
+  if (show) requestAnimationFrame(fitAllGenkou);
+}
+
+function updateCheckMeter() {
+  const done = CHECK_ITEMS.filter(i => save.check[i.id]).length;
+  $('check-meter-fill').style.width = (done / CHECK_ITEMS.length * 100) + '%';
+}
+
+/* ========== 11. きろく（身につき度） ========== */
+function renderRecord() {
+  const body = $('record-body');
+  body.innerHTML = '';
+
+  const h1 = ce('h2'); h1.textContent = '⭐ 身につき度';
+  body.appendChild(h1);
+  const p1 = ce('div', 'rec-panel');
+  Object.keys(CATEGORIES).forEach(key => {
+    const c = CATEGORIES[key];
+    const rec = save.categories[key] || { first: 0, total: 0 };
+    const s = starsFor(rec.first, rec.total);
+    const r = ce('div', 'rec-row');
+    r.innerHTML =
+      '<span class="rec-icon">' + c.emoji + '</span>' +
+      '<span class="rec-label">' + c.label +
+        '<div class="rec-sub">' + (rec.total ? '一回で正かい ' + rec.first + '/' + rec.total + 'もん' : 'まだ ちょうせん して いないよ') + '</div>' +
+      '</span>' +
+      '<span class="rec-stars">' + starStr(s) + '</span>';
+    p1.appendChild(r);
+  });
+  body.appendChild(p1);
+
+  const h2 = ce('h2'); h2.textContent = '🗺️ ステージの すすみぐあい';
+  body.appendChild(h2);
+  const p2 = ce('div', 'rec-panel');
+  WORLDS.forEach(w => {
+    const rec = save.worlds[w.id] || {};
+    const r = ce('div', 'rec-row');
+    r.innerHTML =
+      '<span class="rec-icon">' + w.emoji + '</span>' +
+      '<span class="rec-label">' + (w.plain || w.name) +
+        '<div class="rec-sub">' + (rec.cleared ? 'クリア ずみ' : 'まだ クリアして いないよ') + '</div>' +
+      '</span>' +
+      '<span class="rec-stars">' + starStr(rec.stars || 0) + '</span>';
+    p2.appendChild(r);
+  });
+  body.appendChild(p2);
+
+  const tot = ce('p', 'rec-total');
+  tot.textContent = '✨ 作文パワー ' + save.power + '　　⭐ 星 ' + totalStars() + ' / ' + (WORLDS.length * 5);
+  body.appendChild(tot);
+}
+
+/* ========== 12. はじめの せってい ========== */
+function boot() {
+  $('power-num').textContent = save.power;
+  $('btn-sound').textContent = save.sound ? '🔊' : '🔇';
+
+  document.querySelectorAll('[data-go]').forEach(b => {
+    b.addEventListener('click', () => { Sound.tap(); go(b.dataset.go); });
+  });
+  $('btn-back').addEventListener('click', () => { Sound.tap(); back(); });
+  $('btn-next').addEventListener('click', () => { Sound.tap(); nextQuestion(); });
+  $('btn-sound').addEventListener('click', () => {
+    save.sound = !save.sound;
+    $('btn-sound').textContent = save.sound ? '🔊' : '🔇';
+    persist();
+  });
+  $('btn-sample').addEventListener('click', () => { Sound.tap(); toggleSample(); });
+  $('btn-check-clear').addEventListener('click', () => {
+    save.check = {};
+    persist();
+    renderCheck();
+  });
+  $('btn-reset').addEventListener('click', () => {
+    if (confirm('きろくを ぜんぶ けして、さいしょから やりなおしますか？')) {
+      save = blankSave();
+      persist();
+      $('power-num').textContent = 0;
+      go('title');
+    }
+  });
+  /* iPad は さいしょの タップで 音を つかえるように する */
+  document.addEventListener('touchstart', () => Sound.init(), { once: true });
+  document.addEventListener('click', () => Sound.init(), { once: true });
+
+  go('title');
+}
+document.addEventListener('DOMContentLoaded', boot);
+
+</script>

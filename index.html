@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#101a35">
+<title>作文マスター・クエスト</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ 上のバー ============ -->
+  <header id="topbar">
+    <button id="btn-back" class="tb-btn" aria-label="もどる">◀</button>
+    <div id="tb-title">作文マスター・クエスト</div>
+    <div id="tb-power" title="作文パワー">✨<span id="power-num">0</span></div>
+    <button id="btn-sound" class="tb-btn" aria-label="音">🔊</button>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ タイトル画面 ============ -->
+    <section id="screen-title" class="screen">
+      <div class="title-wrap">
+        <div class="title-badge">📜</div>
+        <h1 class="game-title">作文マスター<br><span class="quest">クエスト</span></h1>
+        <p class="title-sub">きみは 作文の <ruby>勇者<rt>ゆうしゃ</rt></ruby>！<br>マチガエール<ruby>魔王<rt>まおう</rt></ruby>を たおしに 行こう。</p>
+        <div class="title-chars">
+          <span class="tc">🦸</span><span class="tc-vs">VS</span><span class="tc tc-boss">🐸</span>
+        </div>
+        <div class="title-btns">
+          <button class="btn btn-main" data-go="map">▶ ぼうけんに 出る</button>
+          <button class="btn" data-go="check">📝 作文チェック</button>
+          <button class="btn" data-go="record">⭐ きろくを 見る</button>
+        </div>
+        <button class="btn-link" id="btn-reset">さいしょから やりなおす</button>
+      </div>
+    </section>
+
+    <!-- ============ ステージ選択（ワールドマップ） ============ -->
+    <section id="screen-map" class="screen">
+      <div class="talk-bar">
+        <span class="talk-face">🦉</span>
+        <p class="talk-text" id="map-talk">どのステージに 行くか えらんでね。</p>
+      </div>
+      <div id="world-list" class="world-list"></div>
+    </section>
+
+    <!-- ============ バトル画面 ============ -->
+    <section id="screen-battle" class="screen">
+      <div id="battle-head">
+        <div class="enemy-box">
+          <div class="enemy-face" id="enemy-face">🐸</div>
+          <div class="enemy-info">
+            <div class="enemy-name" id="enemy-name">マチガエル</div>
+            <div class="hp-bar"><div class="hp-fill" id="hp-fill"></div></div>
+          </div>
+        </div>
+        <div class="q-count" id="q-count">1もん目 / 5もん</div>
+      </div>
+
+      <div id="battle-body">
+        <div class="talk-bar">
+          <span class="talk-face">🦉</span>
+          <p class="talk-text" id="q-text">どこが おかしい？</p>
+        </div>
+        <div id="q-body" class="q-body"></div>
+        <div id="answers" class="answers"></div>
+      </div>
+
+    </section>
+
+    <!-- ============ けっか画面 ============ -->
+    <section id="screen-result" class="screen">
+      <div id="result-body" class="result-body"></div>
+    </section>
+
+    <!-- ============ 作文チェックモード ============ -->
+    <section id="screen-check" class="screen">
+      <div class="talk-bar">
+        <span class="talk-face">🦉</span>
+        <p class="talk-text">じぶんの 作文を 読みかえして、できたら タップしよう。</p>
+      </div>
+      <div class="sample-box">
+        <button class="sample-toggle" id="btn-sample">📄 お手本の げんこう用紙を 見る　▼</button>
+        <div id="sample-body" class="sample-body" hidden></div>
+      </div>
+      <div id="check-meter" class="check-meter"><div class="check-meter-fill" id="check-meter-fill"></div></div>
+      <div id="check-list" class="check-list"></div>
+      <div class="check-foot">
+        <button class="btn" id="btn-check-clear">チェックを ぜんぶ けす</button>
+      </div>
+    </section>
+
+    <!-- ============ きろく（身につき度） ============ -->
+    <section id="screen-record" class="screen">
+      <div id="record-body" class="record-body"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- こたえ合わせパネル（画面のアニメーションの えいきょうを うけないよう body の 子にする） -->
+<div id="verdict" class="verdict" hidden>
+  <div class="verdict-inner">
+    <div class="verdict-title" id="verdict-title">せいかい！</div>
+    <div class="verdict-rule" id="verdict-rule"></div>
+    <div class="verdict-compare" id="verdict-compare"></div>
+    <div class="talk-bar talk-bar--in">
+      <span class="talk-face">🦉</span>
+      <p class="talk-text" id="verdict-exp"></p>
+    </div>
+    <button class="btn btn-main" id="btn-next">つぎへ ▶</button>
+  </div>
+</div>
+
+<!-- 演出レイヤー -->
+<div id="fx-layer" aria-hidden="true"></div>
+<div id="flash" class="flash" hidden><span id="flash-text"></span></div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
