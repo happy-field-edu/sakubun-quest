@@ -200,7 +200,7 @@ const RULES = [
   hint:'「わたし◯」の ところだよ。声に 出して 読んでみよう。',
   questionType:'find',
   question:'おかしい 字の マスを タップしよう。',
-  manuscript:{ cols:9, rows:['　わたしわ、公園','へ行きました。'] },
+  manuscript:{ cols:9, rows:['　わたしわ、公園へ','行きました。'] },
   answers:[[0,4]]
 },
 {
@@ -239,7 +239,7 @@ const RULES = [
   hint:'「ら◯ぱ」の ところ。声に 出すと つまる音が するね。',
   questionType:'find',
   question:'おかしい 字の マスを タップしよう。',
-  manuscript:{ cols:9, rows:['　ぼくは、らつぱ','をふきました。'] },
+  manuscript:{ cols:9, rows:['　ぼくは、らつぱを','ふきました。'] },
   answers:[[0,6]]
 },
 {
@@ -252,7 +252,7 @@ const RULES = [
   hint:'「き◯うし◯く」。小さく 書く 字が 2つ あるよ。',
   questionType:'find',
   question:'おかしい 字の マスを ぜんぶ タップしよう。（2つ）',
-  manuscript:{ cols:9, rows:['　きゆうしよくの','時間です。'] },
+  manuscript:{ cols:9, rows:['　きゆうしよくの時','間です。'] },
   answers:[[0,2],[0,5]]
 },
 {
@@ -291,8 +291,8 @@ const RULES = [
   hint:'「学校◯」と「本◯」の ところを 見てみよう。',
   questionType:'find',
   question:'おかしい 字の マスを ぜんぶ タップしよう。（2つ）',
-  manuscript:{ cols:9, rows:['　きのう、学校え','行って、本およみ','ました。'] },
-  answers:[[0,7],[1,5]]
+  manuscript:{ cols:9, rows:['　きのう、学校え行','って、本およみまし','た。'] },
+  answers:[[0,7],[1,4]]
 },
 
 /* ===================== WORLD 3 おしゃべり城 ===================== */
@@ -320,8 +320,8 @@ const RULES = [
   questionType:'choice',
   question:'かい話文の 書きかたが 正しいのは どっち？',
   choices:[
-    { manuscript:{ cols:9, rows:['　あさ、お母さん','が「おはよう。」','と言いました。'] } },
-    { manuscript:{ cols:9, rows:['　あさ、お母さんが','言いました。','「おはよう。」'] } }
+    { manuscript:{ cols:9, rows:['　あさ、お母さんが','「おはよう。」と言い','ました。'] } },
+    { manuscript:{ cols:9, rows:['　あさ、お母さんが','「おはよう。」','と言いました。'] } }
   ],
   answer:1
 },
@@ -336,8 +336,8 @@ const RULES = [
   questionType:'choice',
   question:'2行に なった かい話文。正しいのは どっち？',
   choices:[
-    { manuscript:{ cols:9, rows:['「きょうは、とて','もたのしかった','よ。」'] } },
-    { manuscript:{ cols:9, rows:['「きょうは、とて','　もたのしかった','　よ。」'] } }
+    { manuscript:{ cols:9, rows:['「きょうは、とても','たのしかったよ。」'] } },
+    { manuscript:{ cols:9, rows:['「きょうは、とても','　たのしかったよ。」'] } }
   ],
   answer:1
 },
@@ -368,8 +368,8 @@ const RULES = [
   questionType:'choice',
   question:'かい話文の あとの つづきかたが 正しいのは どっち？',
   choices:[
-    { manuscript:{ cols:9, rows:['「おはよう。」ぼ','くも手をふりまし','た。'] } },
-    { manuscript:{ cols:9, rows:['「おはよう。」','　ぼくも手をふり','ました。'] } }
+    { manuscript:{ cols:9, rows:['「おはよう。」ぼくも','手をふりました。'] } },
+    { manuscript:{ cols:9, rows:['「おはよう。」','　ぼくも手をふりま','した。'] } }
   ],
   answer:1
 },
@@ -383,7 +383,7 @@ const RULES = [
   hint:'はじめの「 は あるね。おわりの しるしは どうかな？',
   questionType:'choice',
   question:'この 作文、どこが おかしい？',
-  manuscript:{ cols:9, rows:['　弟が「見て見て','と言いました。'] },
+  manuscript:{ cols:9, rows:['　弟が「見て見てと','言いました。'] },
   choices:[
     { text:'とじかっこ「」」が ぬけている' },
     { text:'「、」が 足りない' },
@@ -664,14 +664,19 @@ const SAMPLE_GENKOU = {
   cols: 20,
   minRows: 10,
   rows: [
+    // 1行目：だい名（上を 3マス あける）
     '　　　うみへ行った日',
-    '　　　　　　　　　　　　　　山田はなこ',
-    '　きのう、家ぞくでうみへ行きました。',
-    '青い魚が、目の前をすいっと泳ぎました。',
+    // 2行目：名前（名字と 名前の あいだと、下を 1マス あける）
+    '　　　　　　　　　　　　　山田　はなこ',
+    // 本文：文が おわっても 行の さいごまで つづけて 書く
+    '　きのう、家ぞくでうみへ行きました。青い',
+    '魚が、目の前をすいっと泳ぎました。',
+    // かい話文は 行を かえて 書く
     '「きれいだね。」',
-    '　わたしは、お母さんに言いました。',
-    '　うみの水は、しょっぱかったです。',
-    'また行きたいと思いました。'
+    // かい話文の あとは 行を かえて、一マス あけて 書く
+    '　わたしは、お母さんに言いました。うみの',
+    '水は、しょっぱかったです。また行きたいと',
+    '思いました。'
   ]
 };
 

@@ -301,11 +301,14 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 /* 「、」「。」や 小さい字は マスの 右上に よせる（たて書きの きまり） */
 .gcell.k-punct, .gcell.k-small{ align-items:flex-start; justify-content:flex-start; }
 /* 行の さいごの 字と 同じマスに 入った 句読点（ぶら下がり）
-   字は ふつうの 大きさのまま、句読点だけ マスの 右下に 小さく そえる */
+   字は すこし 上へ、句読点は その 下（マスの 右下）に 小さく そえる。
+   たて書きの「。」は 字の 右上に えがかれるので、
+   その ぶん 下へ ずらして 字の 下に くるようにする。 */
 .gcell.k-tail{ position:relative; }
+.gcell.k-tail .gc-main{ transform:translateY(-11%); }
 .gcell.k-tail .gc-sub{
-  position:absolute; right:0; bottom:-.04em;
-  font-size:.62em; line-height:1;
+  position:absolute; right:0; bottom:-19%;
+  font-size:.6em; line-height:1;
 }
 /* 「。」と とじかっこが 同じマスに 入った ばあい */
 .gcell.k-pair{ font-size:calc(var(--cell) * .46); }
