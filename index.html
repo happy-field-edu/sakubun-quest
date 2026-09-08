@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#101a35">
+<meta name="theme-color" content="#1f5454">
 <title>作文マスター・クエスト</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -30,7 +30,7 @@
         <h1 class="game-title">作文マスター<br><span class="quest">クエスト</span></h1>
         <p class="title-sub">きみは 作文の <ruby>勇者<rt>ゆうしゃ</rt></ruby>！<br>マチガエール<ruby>魔王<rt>まおう</rt></ruby>を たおしに 行こう。</p>
         <div class="title-chars">
-          <span class="tc">🦸</span><span class="tc-vs">VS</span><span class="tc tc-boss">🐸</span>
+          <span class="tc" data-character="hero">🦸</span><span class="tc-vs">VS</span><span class="tc tc-boss" data-character="maou">🐸</span>
         </div>
         <div class="title-btns">
           <button class="btn btn-main" data-go="map">▶ ぼうけんに 出る</button>
@@ -44,7 +44,7 @@
     <!-- ============ ステージ選択（ワールドマップ） ============ -->
     <section id="screen-map" class="screen">
       <div class="talk-bar">
-        <span class="talk-face">🦉</span>
+        <span class="talk-face" data-character="hakase">🦉</span>
         <p class="talk-text" id="map-talk">どのステージに 行くか えらんでね。</p>
       </div>
       <div id="world-list" class="world-list"></div>
@@ -54,7 +54,7 @@
     <section id="screen-battle" class="screen">
       <div id="battle-head">
         <div class="enemy-box">
-          <div class="enemy-face" id="enemy-face">🐸</div>
+          <div class="enemy-face" id="enemy-face" data-character="maou">🐸</div>
           <div class="enemy-info">
             <div class="enemy-name" id="enemy-name">マチガエル</div>
             <div class="hp-bar"><div class="hp-fill" id="hp-fill"></div></div>
@@ -65,7 +65,7 @@
 
       <div id="battle-body">
         <div class="talk-bar">
-          <span class="talk-face">🦉</span>
+          <span class="talk-face" data-character="hakase">🦉</span>
           <p class="talk-text" id="q-text">どこが おかしい？</p>
         </div>
         <div id="q-body" class="q-body"></div>
@@ -82,7 +82,7 @@
     <!-- ============ 作文チェックモード ============ -->
     <section id="screen-check" class="screen">
       <div class="talk-bar">
-        <span class="talk-face">🦉</span>
+        <span class="talk-face" data-character="hakase">🦉</span>
         <p class="talk-text">じぶんの 作文を 読みかえして、できたら タップしよう。</p>
       </div>
       <div class="sample-box">
@@ -111,7 +111,7 @@
     <div class="verdict-rule" id="verdict-rule"></div>
     <div class="verdict-compare" id="verdict-compare"></div>
     <div class="talk-bar talk-bar--in">
-      <span class="talk-face">🦉</span>
+      <span class="talk-face" data-character="hakase">🦉</span>
       <p class="talk-text" id="verdict-exp"></p>
     </div>
     <button class="btn btn-main" id="btn-next">つぎへ ▶</button>

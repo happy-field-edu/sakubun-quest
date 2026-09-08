@@ -11,6 +11,43 @@ const $  = (id) => document.getElementById(id);
 const ce = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
 const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
 
+/* 画像を 読みこめない ときだけ、もとの 絵文字を 見せる */
+function setCharacter(el, character) {
+  if (!el || !character) return el;
+  el.innerHTML = '';
+  el.classList.add('character-slot');
+  el.classList.remove('is-loaded');
+  el.setAttribute('role', 'img');
+  el.setAttribute('aria-label', character.name);
+
+  const fallback = ce('span', 'character-fallback');
+  fallback.textContent = character.emoji || '？';
+  el.appendChild(fallback);
+
+  if (character.img) {
+    const img = ce('img', 'character-art');
+    img.alt = '';
+    img.draggable = false;
+    img.addEventListener('load', () => el.classList.add('is-loaded'), { once: true });
+    img.addEventListener('error', () => {
+      el.classList.remove('is-loaded');
+      img.remove();
+    }, { once: true });
+    img.src = character.img;
+    el.appendChild(img);
+  }
+  return el;
+}
+function characterEl(character, cls) {
+  return setCharacter(ce('span', cls), character);
+}
+function hydrateCharacters(root) {
+  (root || document).querySelectorAll('[data-character]').forEach(el => {
+    setCharacter(el, CHARACTERS[el.dataset.character]);
+    delete el.dataset.character;
+  });
+}
+
 /* ========== 1. セーブデータ（LocalStorage） ========== */
 const SAVE_KEY = 'sakubun-quest-v1';
 
@@ -20,6 +57,8 @@ function blankSave() {
     power: 0,          // 作文パワー
     worlds: {},        // w1:{ cleared:true, stars:3, first:6, total:7 }
     categories: {},    // genkou:{ first:5, total:7 }
+    variants: {},      // RULE-001: 直前に 出した もんだいパターン
+    asked: {},         // RULE-001: 何回 出したか（まだ 出て いない もんだいを ゆうせん）
     check: {},         // 作文チェックの チェック じょうたい
     sound: true
   };
@@ -49,6 +88,40 @@ function bumpCategory(cat, first) {
   persist();
 }
 /* 星の 計算：一回で 正かい できた わりあい */
+/* ========= ステージの 解放（前を クリアすると つぎが ひらく）========= */
+function isWorldUnlocked(worldId) {
+  const i = WORLDS.findIndex(w => w.id === worldId);
+  if (i <= 0) return true;                       // WORLD 1 は さいしょから ひらいて いる
+  return !!(save.worlds[WORLDS[i - 1].id] || {}).cleared;
+}
+function prevWorldOf(worldId) {
+  const i = WORLDS.findIndex(w => w.id === worldId);
+  return i > 0 ? WORLDS[i - 1] : null;
+}
+function nextWorldOf(worldId) {
+  const i = WORLDS.findIndex(w => w.id === worldId);
+  return (i >= 0 && i + 1 < WORLDS.length) ? WORLDS[i + 1] : null;
+}
+
+/* ========= 1回の バトルに 出す もんだいを えらぶ =========
+   ワールドには もんだいが たくさん あるので、1回では ぜんぶ 出しません。
+   まだ 出て いない もんだいから ゆうせんして えらぶので、
+   くりかえし あそぶと ワールドじゅうの もんだいに 出会えます。 */
+const QUESTIONS_PER_BATTLE = 10;
+function pickQuestions(worldId) {
+  const pool = RULES.filter(r => r.world === worldId);
+  if (!pool.length) return [];
+  const asked = save.asked || (save.asked = {});
+  const chosen = pool
+    .map(r => ({ r: r, n: asked[r.id] || 0, k: Math.random() }))
+    .sort((a, b) => (a.n - b.n) || (a.k - b.k))   // 出した回数が 少ない ものから
+    .slice(0, Math.min(QUESTIONS_PER_BATTLE, pool.length))
+    .map(x => x.r);
+  chosen.forEach(r => { asked[r.id] = (asked[r.id] || 0) + 1; });
+  const order = shuffledIndexes(chosen.length);   // 出る じゅんばんも まぜる
+  return order.map(i => chosen[i]).map(materializeQuestion);
+}
+
 function starsFor(first, total) {
   if (!total) return 0;
   const r = first / total;
@@ -214,33 +287,99 @@ function renderMap() {
   list.innerHTML = '';
   WORLDS.forEach(w => {
     const rec = save.worlds[w.id] || {};
-    const card = ce('button', 'world-card');
+    const open = isWorldUnlocked(w.id);
+    const prev = prevWorldOf(w.id);
+    const card = ce('button', 'world-card' + (open ? '' : ' is-locked'));
     card.style.setProperty('--w', w.color);
     card.innerHTML =
-      '<div class="wc-emoji">' + w.emoji + '</div>' +
       '<div class="wc-main">' +
         '<span class="wc-no">WORLD ' + w.no + '</span>' +
         '<div class="wc-name">' + w.name + '</div>' +
-        '<div class="wc-theme">' + w.theme + '</div>' +
+        '<div class="wc-theme">' +
+          (open ? w.theme : '🔒 WORLD ' + prev.no + 'を クリアすると ひらくよ') +
+        '</div>' +
         '<div class="wc-stars">' + starStr(rec.stars || 0) + '</div>' +
       '</div>' +
-      (rec.cleared ? '<span class="wc-clear">クリア</span>' : '');
-    card.addEventListener('click', () => { Sound.tap(); startBattle(w.id); });
+      (rec.cleared ? '<span class="wc-clear">クリア</span>'
+                   : (open ? '' : '<span class="wc-lock">🔒</span>'));
+    const visual = ce('span', 'wc-visual');
+    visual.appendChild(characterEl(w.enemy, 'wc-character'));
+    const badge = ce('span', 'wc-world-icon');
+    badge.textContent = w.emoji;
+    visual.appendChild(badge);
+    card.insertBefore(visual, card.firstChild);
+    card.addEventListener('click', () => {
+      if (!isWorldUnlocked(w.id)) {              // まだ ひらいて いない ステージ
+        Sound.ng();
+        card.classList.remove('is-shake');
+        void card.offsetWidth;                   // アニメを やりなおす ための おまじない
+        card.classList.add('is-shake');
+        $('map-talk').textContent =
+          'WORLD ' + prev.no + '「' + (prev.plain || prev.name) + '」を クリアすると ひらくよ。';
+        return;
+      }
+      Sound.tap();
+      startBattle(w.id);
+    });
     list.appendChild(card);
   });
   const t = totalStars();
+  const openCount = WORLDS.filter(w => isWorldUnlocked(w.id)).length;
   $('map-talk').textContent = t
-    ? 'いま 星が ' + t + 'こ！ つぎは どのステージに 行く？'
-    : 'どのステージに 行くか えらんでね。1から じゅんばんが おすすめです。';
+    ? 'いま 星が ' + t + 'こ！ ' + (openCount < WORLDS.length
+        ? 'クリアすると つぎの ステージが ひらくよ。'
+        : 'ぜんぶの ステージが ひらいて いるよ！')
+    : 'まずは WORLD 1 から。クリアすると つぎの ステージが ひらくよ。';
 }
 
 /* ========== 6. バトル ========== */
 const battle = { world: null, qs: [], idx: 0, hp: 0, maxHp: 0, dmg: 10, first: 0, tries: 0, locked: false };
 
+/* 同じルールでも、文と こたえの ばしょを かえて 出す */
+function shuffledIndexes(length) {
+  const indexes = Array.from({ length }, (_, i) => i);
+  for (let i = indexes.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
+  }
+  return indexes;
+}
+
+function materializeQuestion(rule) {
+  const variants = (typeof RULE_VARIANTS !== 'undefined' && RULE_VARIANTS[rule.id]) || [];
+  const count = variants.length + 1; // 0 は もとの もんだい
+  const last = save.variants[rule.id];
+  const candidates = Array.from({ length: count }, (_, i) => i).filter(i => count < 2 || i !== last);
+  const variantIndex = candidates[Math.floor(Math.random() * candidates.length)];
+  save.variants[rule.id] = variantIndex;
+
+  const q = Object.assign({}, rule, variantIndex ? variants[variantIndex - 1] : {});
+  q.variantIndex = variantIndex;
+
+  /* 正かいが「いつも B」のように ならないよう、せんたくしを まぜる */
+  if (q.choices && q.choices.length > 1) {
+    const order = shuffledIndexes(q.choices.length);
+    const correct = q.answers ? q.answers.slice() : [q.answer];
+    q.choices = order.map(i => q.choices[i]);
+    const remapped = correct.map(i => order.indexOf(i));
+    if (q.answers) q.answers = remapped;
+    else q.answer = remapped[0];
+  }
+
+  /* ならべかえも、カードが いつも 同じ位置に 出ないようにする */
+  if (q.items && q.answer) {
+    const order = shuffledIndexes(q.items.length);
+    q.items = order.map(i => q.items[i]);
+    q.answer = q.answer.map(i => order.indexOf(i));
+  }
+  return q;
+}
+
 function startBattle(worldId) {
   const w = WORLDS.find(x => x.id === worldId);
-  const qs = RULES.filter(r => r.world === worldId);
-  if (!w || !qs.length) return;
+  if (!w || !isWorldUnlocked(worldId)) return;   // ひらいて いない ステージには 入れない
+  const qs = pickQuestions(worldId);
+  if (!qs.length) return;
   battle.world = w;
   battle.qs = qs;
   battle.idx = 0;
@@ -249,8 +388,9 @@ function startBattle(worldId) {
   battle.dmg = 10;
   battle.maxHp = qs.length * battle.dmg;
   battle.hp = battle.maxHp;
+  persist();
   document.body.style.setProperty('--w', w.color);
-  $('enemy-face').textContent = w.enemy.emoji;
+  setCharacter($('enemy-face'), w.enemy);
   $('enemy-name').textContent = (w.boss ? '👑 ' : '') + w.enemy.name;
   $('hp-fill').style.width = '100%';
   hideVerdict();
@@ -533,6 +673,7 @@ function endBattle() {
   const total = battle.qs.length;
   const stars = starsFor(battle.first, total);
   const rec = save.worlds[w.id] || (save.worlds[w.id] = { cleared: false, stars: 0, first: 0, total: 0 });
+  const firstClear = !rec.cleared;               // はじめて クリアした ときだけ ステージが ひらく
   rec.cleared = true;
   rec.stars = Math.max(rec.stars || 0, stars);
   rec.first = battle.first;
@@ -544,8 +685,7 @@ function endBattle() {
   const body = $('result-body');
   body.innerHTML = '';
 
-  const emo = ce('div', 'result-emoji');
-  emo.textContent = w.boss ? '👑✨' : '🎉';
+  const emo = characterEl(w.enemy, 'result-character');
   const ttl = ce('div', 'result-title');
   ttl.textContent = w.boss ? 'マチガエール魔王を たおした！' : w.enemy.name + 'を たおした！';
   const st = ce('div', 'result-stars');
@@ -566,14 +706,26 @@ function endBattle() {
   body.appendChild(panel);
 
   const talk = ce('div', 'talk-bar');
-  talk.innerHTML = '<span class="talk-face">🦉</span><p class="talk-text">' +
-    (w.boss
-      ? 'よく やりましたね！「すごかった」の 中みを 書けるように なりましたね。<br>つぎは、じぶんの 作文で ためして みましょう。'
-      : (battle.first === total
-          ? 'ぜんぶ 一回で 正かい！ すばらしい！'
-          : 'まちがいを 見つけられた ことも、りっぱな 力ですよ。')) +
-    '</p>';
+  talk.appendChild(characterEl(CHARACTERS.hakase, 'talk-face'));
+  const talkText = ce('p', 'talk-text');
+  talkText.innerHTML = w.boss
+    ? 'よく やりましたね！「すごかった」の 中みを 書けるように なりましたね。<br>つぎは、じぶんの 作文で ためして みましょう。'
+    : (battle.first === total
+        ? 'ぜんぶ 一回で 正かい！ すばらしい！'
+        : 'まちがいを 見つけられた ことも、りっぱな 力ですよ。');
+  talk.appendChild(talkText);
   body.appendChild(talk);
+
+  /* つぎの ステージが ひらいた おしらせ */
+  const next = nextWorldOf(w.id);
+  if (next && firstClear) {
+    const unlock = ce('div', 'result-unlock');
+    unlock.innerHTML =
+      '<div class="ru-key">🔓</div>' +
+      '<div class="ru-text">あたらしい ステージが ひらいた！<br>' +
+      '<b>WORLD ' + next.no + '　' + (next.plain || next.name) + '</b></div>';
+    body.appendChild(unlock);
+  }
 
   if (allClear) {
     const end = ce('div', 'result-panel');
@@ -590,7 +742,12 @@ function endBattle() {
     b.addEventListener('click', fn);
     return b;
   };
-  btns.appendChild(mk('▶ べつの ステージへ', 'btn-main', () => go('map')));
+  if (next && isWorldUnlocked(next.id)) {
+    btns.appendChild(mk('▶ WORLD ' + next.no + ' へ すすむ', 'btn-main', () => startBattle(next.id)));
+    btns.appendChild(mk('🗺 ステージを えらぶ', '', () => go('map')));
+  } else {
+    btns.appendChild(mk('▶ べつの ステージへ', 'btn-main', () => go('map')));
+  }
   btns.appendChild(mk('🔁 もう一かい やる', '', () => startBattle(w.id)));
   btns.appendChild(mk('⭐ きろくを 見る', '', () => go('record')));
   body.appendChild(btns);
@@ -697,6 +854,7 @@ function renderRecord() {
 
 /* ========== 12. はじめの せってい ========== */
 function boot() {
+  hydrateCharacters(document);
   $('power-num').textContent = save.power;
   $('btn-sound').textContent = save.sound ? '🔊' : '🔇';
 

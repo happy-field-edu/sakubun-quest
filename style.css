@@ -7,30 +7,34 @@
 
 :root{
   /* せかいの色 */
-  --bg-1:#101a35;
-  --bg-2:#1d2b57;
-  --panel:#fff8ea;         /* 羊皮紙（ようひし）色 */
-  --panel-line:#c9ad7c;
-  --ink:#3b2f22;           /* 文字色 */
-  --ink-soft:#7a6a55;
-  --gold:#ffcc44;
-  --ok:#2fae63;
-  --ok-soft:#d9f5e3;
-  --ng:#ff9350;            /* こわくない オレンジ */
-  --ng-soft:#ffeadd;
+  --bg-1:#cfeaed;
+  --bg-2:#f7e2ba;
+  --panel:#fffdf8;         /* ノートの 紙色 */
+  --panel-line:#91aaa1;
+  --ink:#203d3d;           /* 文字色 */
+  --ink-soft:#607773;
+  --gold:#d99b25;
+  --accent:#e56f52;
+  --accent-dark:#a94736;
+  --ok:#39956c;
+  --ok-soft:#dff4e8;
+  --ng:#e8794f;            /* こわくない オレンジ */
+  --ng-soft:#ffeadf;
   --white:#ffffff;
 
   /* ワールドの色（JSで --w にセットする） */
   --w:#3fa96a;
 
   /* 大きさ */
-  --radius:18px;
+  --radius:14px;
   --tap:56px;              /* タップしやすい 最小の大きさ */
   --topbar-h:52px;
   --cell:30px;             /* げんこう用紙の1マス（JSで計算しなおす） */
 
-  --font: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN W4", "UD デジタル 教科書体 NK-R",
-          "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  --font: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3",
+          "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  --font-display: "YuKyokasho", "Yu Kyokasho", "Hiragino Mincho ProN",
+                  "ヒラギノ明朝 ProN", serif;
 }
 
 *{ box-sizing:border-box; }
@@ -47,11 +51,10 @@ html,body{
 }
 body{
   background:
-    radial-gradient(circle at 12% 12%, rgba(255,255,255,.10) 0 2px, transparent 3px),
-    radial-gradient(circle at 82% 22%, rgba(255,255,255,.10) 0 2px, transparent 3px),
-    radial-gradient(circle at 30% 78%, rgba(255,255,255,.08) 0 2px, transparent 3px),
-    radial-gradient(circle at 68% 62%, rgba(255,255,255,.08) 0 2px, transparent 3px),
-    linear-gradient(160deg, var(--bg-1), var(--bg-2) 60%, #2a1c46);
+    radial-gradient(ellipse at 9% 13%, rgba(255,255,255,.72) 0 5.5%, transparent 5.8%),
+    radial-gradient(ellipse at 88% 9%, rgba(255,255,255,.58) 0 7%, transparent 7.3%),
+    repeating-linear-gradient(118deg, transparent 0 115px, rgba(42,102,92,.035) 116px 118px, transparent 119px 225px),
+    linear-gradient(165deg, var(--bg-1) 0%, #e5f1dc 54%, var(--bg-2) 100%);
   background-attachment:fixed;
   -webkit-user-select:none; user-select:none;
   -webkit-tap-highlight-color:transparent;
@@ -68,14 +71,14 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   padding-top:env(safe-area-inset-top);
   display:flex; align-items:center; gap:8px;
   padding-left:8px; padding-right:8px;
-  background:rgba(16,26,53,.86);
+  background:rgba(31,84,84,.94);
   backdrop-filter:blur(8px);
-  border-bottom:2px solid rgba(255,204,68,.35);
+  border-bottom:3px solid #efc977;
 }
 #tb-title{
-  flex:1; text-align:center; color:var(--gold);
-  font-weight:800; font-size:clamp(14px,3.6vw,18px); letter-spacing:.02em;
-  text-shadow:0 2px 0 rgba(0,0,0,.4);
+  flex:1; text-align:center; color:#fff7df;
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(14px,3.6vw,18px); letter-spacing:.05em;
 }
 .tb-btn{
   min-width:44px; height:38px;
@@ -86,8 +89,8 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 }
 .tb-btn:active{ transform:translateY(2px); }
 #tb-power{
-  color:var(--gold); font-weight:800; font-size:16px;
-  background:rgba(0,0,0,.25); border-radius:999px; padding:4px 12px;
+  color:#795616; font-weight:800; font-size:16px;
+  background:#fff1c7; border-radius:999px; padding:4px 12px;
   min-width:60px; text-align:center;
 }
 #btn-back{ visibility:hidden; }
@@ -107,51 +110,66 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   display:block; width:100%;
   min-height:var(--tap);
   margin:10px 0; padding:12px 16px;
-  font-family:inherit; font-size:clamp(16px,4.2vw,20px); font-weight:800;
+  font-family:inherit; font-size:clamp(16px,4.2vw,20px); font-weight:700;
   color:var(--ink); background:var(--panel);
-  border:3px solid var(--panel-line); border-radius:var(--radius);
-  box-shadow:0 5px 0 rgba(0,0,0,.35);
+  border:2px solid var(--panel-line); border-radius:var(--radius);
+  box-shadow:0 4px 0 #6f9186, 0 9px 20px rgba(45,90,79,.12);
   cursor:pointer; line-height:1.5;
 }
-.btn:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.35); }
+.btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #6f9186; }
 .btn-main{
-  background:linear-gradient(180deg,#ffdd77,var(--gold));
-  border-color:#b98b1d;
+  color:#fff; background:linear-gradient(180deg,#f28a69,var(--accent));
+  border-color:var(--accent-dark); box-shadow:0 5px 0 var(--accent-dark), 0 10px 22px rgba(123,52,40,.18);
 }
 .btn:disabled{ opacity:.5; }
 .btn-link{
   display:block; margin:18px auto 0; padding:8px;
-  background:none; border:0; color:rgba(255,255,255,.6);
+  background:rgba(255,255,255,.34); border:0; color:#416964; border-radius:999px;
   font-family:inherit; font-size:14px; text-decoration:underline; cursor:pointer;
 }
 
 /* ============ タイトル画面 ============ */
 .title-wrap{ text-align:center; padding-top:6px; }
-.title-badge{ font-size:54px; filter:drop-shadow(0 6px 8px rgba(0,0,0,.5)); animation:bob 2.6s ease-in-out infinite; }
+.title-badge{ font-size:54px; filter:drop-shadow(0 5px 4px rgba(46,91,78,.18)); animation:bob 2.6s ease-in-out infinite; }
 @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
 .game-title{
   margin:4px 0 6px;
-  font-size:clamp(30px,9vw,52px); font-weight:900; line-height:1.15;
-  color:var(--gold);
-  text-shadow:0 3px 0 #8a5a00, 0 6px 14px rgba(0,0,0,.55);
+  font-family:var(--font-display); font-size:clamp(30px,9vw,52px); font-weight:700; line-height:1.15;
+  color:#245b5b; letter-spacing:.04em;
+  text-shadow:0 2px 0 rgba(255,255,255,.9);
 }
-.game-title .quest{ color:#fff; text-shadow:0 3px 0 #29508f, 0 6px 14px rgba(0,0,0,.55); }
-.title-sub{ color:#e7ecff; font-size:clamp(14px,3.8vw,17px); font-weight:700; line-height:1.9; margin:0 0 10px; }
-.title-chars{ display:flex; align-items:center; justify-content:center; gap:14px; margin:6px 0 14px; }
-.title-chars .tc{ font-size:46px; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+.game-title .quest{ color:var(--accent); text-shadow:0 2px 0 rgba(255,255,255,.9); }
+.title-sub{ color:#365e5b; font-size:clamp(14px,3.8vw,17px); font-weight:700; line-height:1.9; margin:0 0 10px; }
+.title-chars{ display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 12px; }
+.title-chars .tc{ width:clamp(82px,23vw,118px); height:clamp(96px,26vw,132px); }
 .title-chars .tc-boss{ animation:bob 1.8s ease-in-out infinite; }
-.tc-vs{ color:#fff; font-weight:900; font-size:20px; opacity:.8; }
+.tc-vs{
+  width:42px; height:42px; display:flex; align-items:center; justify-content:center;
+  color:var(--accent-dark); background:#fff8e6; border:2px solid #e8bd69; border-radius:50%;
+  font-family:var(--font-display); font-weight:700; font-size:16px;
+}
 .title-btns{ max-width:420px; margin:0 auto; }
 
 /* ============ はかせの ふきだし ============ */
 .talk-bar{
   display:flex; align-items:flex-start; gap:10px;
-  background:var(--panel); border:3px solid var(--panel-line);
+  background:rgba(255,253,248,.94); border:2px solid #a7bbb4; border-left:6px solid #3f8d86;
   border-radius:var(--radius); padding:10px 14px; margin:0 0 12px;
-  box-shadow:0 4px 0 rgba(0,0,0,.3);
+  box-shadow:0 7px 20px rgba(45,90,79,.13);
 }
 .talk-bar--in{ box-shadow:none; margin:12px 0 0; }
-.talk-face{ font-size:30px; line-height:1.2; flex:none; }
+.character-slot{
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
+  line-height:1; flex:none;
+}
+.character-art{
+  position:relative; z-index:1; display:block;
+  width:100%; height:100%; object-fit:contain;
+  filter:drop-shadow(0 4px 5px rgba(39,85,75,.26));
+}
+.character-fallback{ display:block; }
+.character-slot.is-loaded .character-fallback{ display:none; }
+.talk-face{ width:56px; height:56px; font-size:30px; align-self:flex-end; }
 .talk-text{ margin:0; font-size:clamp(15px,4vw,18px); font-weight:700; line-height:1.7; }
 
 /* ============ ワールド一覧 ============ */
@@ -160,16 +178,23 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   position:relative; display:flex; align-items:center; gap:12px;
   width:100%; text-align:left;
   padding:14px; min-height:88px;
-  background:var(--panel); border:3px solid var(--panel-line);
-  border-left:12px solid var(--w);
-  border-radius:var(--radius); box-shadow:0 5px 0 rgba(0,0,0,.35);
+  background:rgba(255,253,248,.94); border:2px solid #a7bbb4;
+  border-left:9px solid var(--w);
+  border-radius:var(--radius); box-shadow:0 7px 20px rgba(45,90,79,.14);
   font-family:inherit; cursor:pointer;
 }
-.world-card:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.35); }
-.wc-emoji{ font-size:38px; flex:none; }
+.world-card:active{ transform:translateY(3px); box-shadow:0 2px 6px rgba(45,90,79,.16); }
+.wc-visual{ position:relative; width:70px; height:70px; flex:none; }
+.wc-character{ width:70px; height:70px; }
+.wc-world-icon{
+  position:absolute; right:-3px; bottom:-3px; z-index:2;
+  width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+  background:#fff; border:2px solid var(--w); border-radius:50%;
+  font-size:16px; box-shadow:0 2px 4px rgba(0,0,0,.25);
+}
 .wc-main{ flex:1; min-width:0; }
 .wc-no{ font-size:12px; font-weight:800; color:#fff; background:var(--w); border-radius:999px; padding:2px 10px; display:inline-block; }
-.wc-name{ font-size:clamp(17px,4.6vw,22px); font-weight:900; margin:4px 0 2px; }
+.wc-name{ font-family:var(--font-display); font-size:clamp(17px,4.6vw,22px); font-weight:700; margin:4px 0 2px; }
 .wc-theme{ font-size:13px; color:var(--ink-soft); font-weight:700; }
 .wc-stars{ font-size:17px; letter-spacing:1px; color:var(--gold); text-shadow:0 1px 0 rgba(0,0,0,.25); }
 .wc-clear{
@@ -177,16 +202,60 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   font-size:12px; font-weight:900; color:#fff; background:var(--ok);
   border-radius:999px; padding:3px 10px;
 }
+/* ---- まだ ひらいて いない ステージ ---- */
+.world-card.is-locked{
+  background:rgba(238,240,238,.94);
+  border-color:#c3ccc8; border-left-color:#b6c0bc;
+  box-shadow:0 4px 12px rgba(45,90,79,.10);
+}
+.world-card.is-locked .wc-visual,
+.world-card.is-locked .wc-name,
+.world-card.is-locked .wc-no{ filter:grayscale(1); opacity:.55; }
+.world-card.is-locked .wc-theme{ color:#7d8a86; }
+.world-card.is-locked:active{ transform:none; }
+.wc-lock{
+  position:absolute; top:8px; right:10px;
+  font-size:18px; line-height:1;
+}
+.world-card.is-shake{ animation:wcshake .4s ease; }
+@keyframes wcshake{
+  0%,100%{ transform:translateX(0); }
+  20%{ transform:translateX(-6px); }
+  40%{ transform:translateX(6px); }
+  60%{ transform:translateX(-4px); }
+  80%{ transform:translateX(4px); }
+}
+/* ---- つぎの ステージが ひらいた おしらせ ---- */
+.result-unlock{
+  display:flex; align-items:center; gap:12px;
+  margin:12px 0; padding:14px 16px;
+  background:linear-gradient(135deg, #fff6d8, #ffeab0);
+  border:3px solid var(--gold); border-radius:var(--radius);
+  box-shadow:0 6px 16px rgba(180,140,20,.22);
+  animation:unlockpop .5s ease;
+}
+.ru-key{ font-size:32px; line-height:1; flex:none; }
+.ru-text{ font-size:15px; font-weight:800; line-height:1.7; color:var(--ink); }
+.ru-text b{ font-size:17px; }
+@keyframes unlockpop{
+  0%{ transform:scale(.9); opacity:0; }
+  60%{ transform:scale(1.03); }
+  100%{ transform:scale(1); opacity:1; }
+}
+@media (prefers-reduced-motion:reduce){
+  .world-card.is-shake, .result-unlock{ animation:none; }
+}
 
 /* ============ バトル ============ */
 #battle-head{ margin-bottom:12px; }
 .enemy-box{
   display:flex; align-items:center; gap:12px;
-  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
-  border:3px solid rgba(255,255,255,.25); border-radius:var(--radius);
+  background:rgba(255,253,248,.88);
+  border:2px solid #8ba49b; border-left:8px solid var(--w); border-radius:var(--radius);
+  box-shadow:0 7px 20px rgba(45,90,79,.14);
   padding:10px 14px;
 }
-.enemy-face{ font-size:46px; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+.enemy-face{ width:88px; height:88px; font-size:46px; }
 .enemy-face.is-hit{ animation:shake .45s ease; }
 @keyframes shake{
   0%,100%{transform:translateX(0) rotate(0);}
@@ -195,10 +264,10 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   70%{transform:translateX(-5px) rotate(-4deg);}
 }
 .enemy-info{ flex:1; min-width:0; }
-.enemy-name{ color:#fff; font-weight:900; font-size:clamp(15px,4vw,19px); margin-bottom:6px; }
-.hp-bar{ height:16px; background:rgba(0,0,0,.45); border-radius:999px; overflow:hidden; border:2px solid rgba(255,255,255,.35); }
+.enemy-name{ color:var(--ink); font-family:var(--font-display); font-weight:700; font-size:clamp(15px,4vw,19px); margin-bottom:6px; }
+.hp-bar{ height:16px; background:#d6e1dc; border-radius:999px; overflow:hidden; border:2px solid #8ba49b; }
 .hp-fill{ height:100%; width:100%; border-radius:999px; background:linear-gradient(90deg,#ff6b6b,#ffb03a); transition:width .5s cubic-bezier(.3,1.4,.5,1); }
-.q-count{ text-align:right; color:#cfd8f5; font-size:13px; font-weight:800; margin-top:6px; }
+.q-count{ text-align:right; color:#466b66; font-size:13px; font-weight:700; margin-top:6px; }
 
 .q-body{ margin:0 0 14px; }
 .answers{ display:grid; gap:10px; }
@@ -208,12 +277,12 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   position:relative; width:100%;
   min-height:var(--tap); padding:14px 16px 14px 52px;
   text-align:left; font-family:inherit;
-  font-size:clamp(15px,4.2vw,19px); font-weight:800; line-height:1.7;
+  font-size:clamp(15px,4.2vw,19px); font-weight:700; line-height:1.7;
   color:var(--ink); background:var(--panel);
-  border:3px solid var(--panel-line); border-radius:var(--radius);
-  box-shadow:0 5px 0 rgba(0,0,0,.3); cursor:pointer;
+  border:2px solid var(--panel-line); border-radius:var(--radius);
+  box-shadow:0 4px 0 #78978d, 0 8px 18px rgba(45,90,79,.1); cursor:pointer;
 }
-.ans:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+.ans:active{ transform:translateY(3px); box-shadow:0 1px 0 #78978d; }
 .ans .ans-mark{
   position:absolute; left:12px; top:50%; transform:translateY(-50%);
   width:30px; height:30px; border-radius:50%;
@@ -230,16 +299,16 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 .ox-wrap{ display:flex; gap:14px; }
 .ox{
   flex:1; min-height:96px; border-radius:24px;
-  border:4px solid var(--panel-line); background:var(--panel);
+  border:2px solid var(--panel-line); background:var(--panel);
   font-size:52px; font-weight:900; font-family:inherit; color:var(--ink);
-  box-shadow:0 6px 0 rgba(0,0,0,.3); cursor:pointer;
+  box-shadow:0 4px 0 #78978d, 0 8px 18px rgba(45,90,79,.1); cursor:pointer;
 }
-.ox:active{ transform:translateY(5px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+.ox:active{ transform:translateY(3px); box-shadow:0 1px 0 #78978d; }
 .ox.o{ color:#e2555f; }
 .ox.x{ color:#4a7bd0; }
 .ox.is-ng{ opacity:.4; }
 .statement{
-  background:var(--panel); border:3px dashed var(--panel-line); border-radius:var(--radius);
+  background:rgba(255,253,248,.94); border:2px dashed #78978d; border-radius:var(--radius);
   padding:16px; margin:0 0 14px;
   font-size:clamp(16px,4.6vw,21px); font-weight:800; line-height:1.9; text-align:center;
 }
@@ -247,7 +316,7 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 /* 「、」を入れる場所（スロット） */
 .slot-sentence{
   display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
-  gap:2px; background:var(--panel); border:3px solid var(--panel-line);
+  gap:2px; background:var(--panel); border:2px solid var(--panel-line);
   border-radius:var(--radius); padding:16px 10px;
   font-size:clamp(17px,4.6vw,22px); font-weight:800; line-height:2;
 }
@@ -264,7 +333,7 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 .order-slots{ display:flex; gap:8px; margin-bottom:12px; }
 .order-slot{
   flex:1; min-height:48px; border-radius:14px;
-  border:3px dashed rgba(255,255,255,.4); color:#fff;
+  border:2px dashed #65857c; color:#365e59;
   display:flex; align-items:center; justify-content:center;
   font-size:13px; font-weight:800; padding:6px; text-align:center; line-height:1.4;
 }
@@ -284,7 +353,7 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   background:#fffdf5;
   border:3px solid #b8985f; border-radius:8px;
   padding:4px;
-  box-shadow:0 5px 0 rgba(0,0,0,.3);
+  box-shadow:0 5px 16px rgba(68,89,75,.18);
 }
 .gcell{
   direction:ltr;
@@ -298,8 +367,19 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 }
 .gcell .gc-main{ display:block; }
 .gcell .gc-sub{ font-size:.6em; }
-/* 「、」「。」や 小さい字は マスの 右上に よせる（たて書きの きまり） */
-.gcell.k-punct, .gcell.k-small{ align-items:flex-start; justify-content:flex-start; }
+/* 小さい字は マスの 右上に よせる */
+.gcell.k-small{ align-items:flex-start; justify-content:flex-start; }
+/* 「、」「。」も 右上の 領域に 固定する */
+.gcell.k-punct{
+  position:relative; display:block;
+  writing-mode:horizontal-tb; text-orientation:mixed;
+}
+.gcell.k-punct > .gc-main{
+  position:absolute; top:0; right:0; display:block;
+  width:62%; height:62%;
+  writing-mode:vertical-rl; text-orientation:mixed;
+  font-size:calc(var(--cell) * .62); line-height:1;
+}
 /* 行の さいごの 字と 同じマスに 入った 句読点（ぶら下がり）
    字は すこし 上へ、句読点は その 下（マスの 右下）に 小さく そえる。
    たて書きの「。」は 字の 右上に えがかれるので、
@@ -310,9 +390,22 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
   position:absolute; right:0; bottom:-19%;
   font-size:.6em; line-height:1;
 }
-/* 「。」と とじかっこが 同じマスに 入った ばあい */
-.gcell.k-pair{ font-size:calc(var(--cell) * .46); }
-.gcell.k-pair .gc-sub{ font-size:1em; }
+/* 「。」と とじかっこが 同じマスに 入った ばあい
+   とじかっこは 左上、句点は 右上に 分けて おく */
+.gcell.k-pair{
+  position:relative; display:block;
+  writing-mode:horizontal-tb; text-orientation:mixed;
+}
+.gcell.k-pair .gc-main,
+.gcell.k-pair .gc-sub{
+  position:absolute; display:block;
+  width:50%; height:50%;
+  writing-mode:vertical-rl; text-orientation:mixed;
+  font-size:calc(var(--cell) * .52); line-height:1;
+  transform:none;
+}
+.gcell.k-pair .gc-main{ top:0; right:0; }
+.gcell.k-pair .gc-sub{ left:0; top:0; }
 /* タップできる マス */
 .gcell.tapable{ cursor:pointer; }
 .gcell.tapable:active{ background:#fff2c9; }
@@ -323,13 +416,13 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 .genkou.is-locked .gcell.tapable{ cursor:default; }
 .genkou-box{ display:block; }
 .genkou-label{
-  text-align:center; color:#fff; font-size:12px; font-weight:800;
+  text-align:center; color:#466b66; font-size:12px; font-weight:700;
   margin-bottom:6px; opacity:.85;
 }
 
 /* くらべる（正しい・まちがい） */
 .compare{ display:grid; gap:10px; }
-.cmp-box{ background:var(--panel); border:3px solid var(--panel-line); border-radius:14px; padding:10px 12px; }
+.cmp-box{ background:var(--panel); border:2px solid var(--panel-line); border-radius:14px; padding:10px 12px; }
 .cmp-box.ok{ border-color:var(--ok); background:var(--ok-soft); }
 .cmp-box.ng{ border-color:var(--ng); background:var(--ng-soft); }
 .cmp-tag{ font-size:12px; font-weight:900; margin-bottom:4px; }
@@ -340,16 +433,16 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 /* ============ こたえ合わせパネル ============ */
 .verdict{
   position:fixed; inset:0; z-index:60;
-  background:rgba(10,16,34,.72);
+  background:rgba(25,62,62,.66);
   display:flex; align-items:flex-end; justify-content:center;
   padding:10px; overflow-y:auto;
   animation:fadeUp .2s ease both;
 }
 .verdict-inner{
   width:100%; max-width:640px;
-  background:var(--panel); border:4px solid var(--panel-line);
-  border-radius:24px; padding:16px;
-  box-shadow:0 -6px 30px rgba(0,0,0,.5);
+  background:var(--panel); border:2px solid var(--panel-line);
+  border-radius:18px; padding:16px;
+  box-shadow:0 -6px 30px rgba(25,62,62,.28);
   margin:auto 0 0;
   animation:slideUp .3s cubic-bezier(.2,1.2,.4,1) both;
 }
@@ -400,14 +493,15 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 
 /* ============ けっか画面 ============ */
 .result-body{ text-align:center; }
-.result-emoji{ font-size:64px; animation:bob 2s ease-in-out infinite; }
-.result-title{ font-size:clamp(24px,7vw,36px); font-weight:900; color:var(--gold); text-shadow:0 3px 0 #8a5a00; margin:6px 0; }
+.result-character{ width:clamp(116px,32vw,170px); height:clamp(104px,29vw,150px); margin:0 auto; animation:bob 2s ease-in-out infinite; }
+.result-title{ font-family:var(--font-display); font-size:clamp(24px,7vw,36px); font-weight:700; color:#245b5b; text-shadow:0 2px 0 rgba(255,255,255,.8); margin:6px 0; }
 .result-stars{ font-size:clamp(32px,9vw,46px); letter-spacing:4px; color:var(--gold); margin:4px 0 10px; text-shadow:0 2px 0 rgba(0,0,0,.3); }
 .result-panel{
-  background:var(--panel); border:3px solid var(--panel-line); border-radius:var(--radius);
+  background:var(--panel); border:2px solid var(--panel-line); border-radius:var(--radius);
+  box-shadow:0 7px 20px rgba(45,90,79,.12);
   padding:14px; margin:0 auto 14px; max-width:480px; text-align:left;
 }
-.result-row{ display:flex; justify-content:space-between; font-size:16px; font-weight:800; padding:6px 0; border-bottom:2px dotted #e0d2b4; }
+.result-row{ display:flex; justify-content:space-between; font-size:16px; font-weight:700; padding:6px 0; border-bottom:2px dotted #b9cdc5; }
 .result-row:last-child{ border:0; }
 .result-btns{ max-width:420px; margin:0 auto; }
 
@@ -416,24 +510,24 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 .sample-toggle{
   width:100%; min-height:48px; padding:10px 14px;
   font-family:inherit; font-size:clamp(14px,3.8vw,17px); font-weight:800;
-  color:#fff; background:rgba(255,255,255,.14);
-  border:2px solid rgba(255,255,255,.3); border-radius:14px; cursor:pointer;
+  color:#fff; background:#3f827d;
+  border:2px solid #28645f; border-radius:14px; cursor:pointer;
 }
 .sample-toggle:active{ transform:translateY(2px); }
 .sample-body{ margin-top:10px; }
 .sample-body{ display:block; }
-.check-meter{ height:18px; background:rgba(0,0,0,.35); border:2px solid rgba(255,255,255,.3); border-radius:999px; overflow:hidden; margin-bottom:12px; }
+.check-meter{ height:18px; background:#d3e1dc; border:2px solid #8ba49b; border-radius:999px; overflow:hidden; margin-bottom:12px; }
 .check-meter-fill{ height:100%; width:0%; background:linear-gradient(90deg,#6ee7a6,var(--gold)); transition:width .4s ease; }
 .check-list{ display:grid; gap:10px; }
 .check-item{
   display:flex; align-items:center; gap:12px;
   width:100%; padding:12px 14px; min-height:var(--tap);
-  background:var(--panel); border:3px solid var(--panel-line); border-radius:var(--radius);
-  box-shadow:0 4px 0 rgba(0,0,0,.3);
-  font-family:inherit; font-size:clamp(15px,4.2vw,18px); font-weight:800; text-align:left;
+  background:var(--panel); border:2px solid var(--panel-line); border-radius:var(--radius);
+  box-shadow:0 4px 0 #78978d, 0 8px 18px rgba(45,90,79,.1);
+  font-family:inherit; font-size:clamp(15px,4.2vw,18px); font-weight:700; text-align:left;
   color:var(--ink); cursor:pointer; line-height:1.6;
 }
-.check-item:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+.check-item:active{ transform:translateY(3px); box-shadow:0 1px 0 #78978d; }
 .check-box{
   flex:none; width:34px; height:34px; border-radius:10px;
   border:3px solid var(--panel-line); background:#fff;
@@ -445,15 +539,15 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 .check-foot{ margin-top:16px; }
 
 /* ============ きろく ============ */
-.record-body h2{ color:#fff; font-size:clamp(18px,5vw,24px); margin:18px 0 10px; text-shadow:0 2px 0 rgba(0,0,0,.4); }
-.rec-panel{ background:var(--panel); border:3px solid var(--panel-line); border-radius:var(--radius); padding:12px 14px; }
+.record-body h2{ color:#245b5b; font-family:var(--font-display); font-size:clamp(18px,5vw,24px); margin:18px 0 10px; text-shadow:0 2px 0 rgba(255,255,255,.75); }
+.rec-panel{ background:var(--panel); border:2px solid var(--panel-line); border-radius:var(--radius); padding:12px 14px; box-shadow:0 7px 20px rgba(45,90,79,.12); }
 .rec-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:2px dotted #e0d2b4; }
 .rec-row:last-child{ border:0; }
 .rec-icon{ font-size:24px; flex:none; }
 .rec-label{ flex:1; font-size:clamp(14px,4vw,17px); font-weight:800; }
 .rec-stars{ color:var(--gold); font-size:clamp(16px,4.6vw,20px); letter-spacing:2px; text-shadow:0 1px 0 rgba(0,0,0,.25); }
 .rec-sub{ font-size:12px; color:var(--ink-soft); font-weight:700; }
-.rec-total{ text-align:center; color:#fff; font-weight:900; font-size:18px; margin:10px 0 0; }
+.rec-total{ text-align:center; color:#315f5a; font-weight:800; font-size:18px; margin:10px 0 0; }
 
 /* ============ 横に広い画面（iPad 横向き など） ============ */
 @media (min-width:700px){
@@ -466,6 +560,7 @@ ruby rt{ font-size:.5em; font-weight:700; letter-spacing:0; }
 }
 @media (max-height:480px) and (orientation:landscape){
   .title-badge{ font-size:36px; }
-  .title-chars .tc{ font-size:34px; }
+  .title-chars .tc{ width:72px; height:76px; }
+  .talk-face{ width:48px; height:48px; }
   .btn{ min-height:48px; margin:8px 0; }
 }

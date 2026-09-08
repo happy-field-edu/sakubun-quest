@@ -18,6 +18,14 @@ html = html.replace(/[ \t]*<link rel="stylesheet" href="style\.css">\n/,
 html = html.replace(/[ \t]*<script src="data\.js"><\/script>\n[ \t]*<script src="script\.js"><\/script>\n/,
   '<script>\n' + js + '\n<\/script>\n');
 
+// キャラクター画像も data URI にして、配布版を ほんとうの 1ファイルにする
+const characterDir = path.join(__dirname, 'assets/characters');
+fs.readdirSync(characterDir).filter(f => f.endsWith('.png')).forEach(f => {
+  const assetPath = 'assets/characters/' + f;
+  const dataUri = 'data:image/png;base64,' + fs.readFileSync(path.join(characterDir, f)).toString('base64');
+  html = html.split(assetPath).join(dataUri);
+});
+
 fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'dist/sakubun-quest.html'), html);
 
