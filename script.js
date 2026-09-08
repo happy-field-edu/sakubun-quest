@@ -636,6 +636,31 @@ function flash(text, cls) {
 }
 
 /* こたえ合わせパネル */
+/* かいせつを 読む 時間。この あいだ「つぎへ」は おせない。
+   文字が 多い もんだいほど すこし 長く なる（2.0〜5.0びょう）。
+   時間を かえたい ときは この 2つの 数字を なおす。 */
+const READ_BASE_MS = 2000;   // さいてい これだけは 読む 時間を とる
+const READ_PER_CHAR_MS = 45; // 1文字ごとに ふえる 時間
+let readTimer = null;
+
+/* 「つぎへ」を 読みおわるまで おせなく する */
+function holdNextButton(chars) {
+  const btn = $('btn-next');
+  const wait = Math.min(5000, READ_BASE_MS + chars * READ_PER_CHAR_MS);
+  clearTimeout(readTimer);
+  btn.disabled = true;
+  btn.classList.add('is-waiting');
+  btn.style.setProperty('--wait', wait + 'ms');
+  btn.textContent = 'かいせつを よもう…';
+  readTimer = setTimeout(() => {
+    btn.disabled = false;
+    btn.classList.remove('is-waiting');
+    btn.classList.add('is-ready');
+    btn.textContent = 'つぎへ ▶';
+    setTimeout(() => btn.classList.remove('is-ready'), 600);
+  }, wait);
+}
+
 function showVerdict(q, first) {
   $('verdict-title').textContent = first ? 'せいかい！' : 'できた！ ナイス。';
   $('verdict-rule').innerHTML =
@@ -654,11 +679,19 @@ function showVerdict(q, first) {
   grid.appendChild(box('ng', '✕ こうすると まちがい', q.wrongExample));
   grid.appendChild(box('ok', '◯ 正しい 書きかた', q.correctExample));
   cmp.appendChild(grid);
-  $('verdict-exp').textContent = q.childExplanation +
-    (q.anyOf ? '　※ 正かいは 一つだけでは ありません。' : '');
+  const exp = q.childExplanation + (q.anyOf ? '　※ 正かいは 一つだけでは ありません。' : '');
+  $('verdict-exp').textContent = exp;
   $('verdict').hidden = false;
+  holdNextButton((q.title + exp).length);   // 読む 時間を とってから おせるように
 }
-function hideVerdict() { $('verdict').hidden = true; }
+function hideVerdict() {
+  clearTimeout(readTimer);
+  const btn = $('btn-next');
+  btn.disabled = false;
+  btn.classList.remove('is-waiting', 'is-ready');
+  btn.textContent = 'つぎへ ▶';
+  $('verdict').hidden = true;
+}
 
 function nextQuestion() {
   hideVerdict();
@@ -687,7 +720,7 @@ function endBattle() {
 
   const emo = characterEl(w.enemy, 'result-character');
   const ttl = ce('div', 'result-title');
-  ttl.textContent = w.boss ? 'マチガエール魔王を たおした！' : w.enemy.name + 'を たおした！';
+  ttl.textContent = w.boss ? 'マチガエールまおうを たおした！' : w.enemy.name + 'を たおした！';
   const st = ce('div', 'result-stars');
   st.textContent = starStr(stars);
   body.appendChild(emo); body.appendChild(ttl); body.appendChild(st);
@@ -813,7 +846,7 @@ function renderRecord() {
   const body = $('record-body');
   body.innerHTML = '';
 
-  const h1 = ce('h2'); h1.textContent = '⭐ 身につき度';
+  const h1 = ce('h2'); h1.textContent = '⭐ できるように なった 力';
   body.appendChild(h1);
   const p1 = ce('div', 'rec-panel');
   Object.keys(CATEGORIES).forEach(key => {
